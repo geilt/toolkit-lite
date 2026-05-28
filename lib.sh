@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib.sh — shared helpers for toolkit-light.
+# lib.sh — shared helpers for toolkit-lite.
 #
 # Generic, portable (macOS + common Linux). No personal config, no secrets.
 # Sourced by install.sh and every installers/*.sh.
@@ -88,5 +88,5 @@ require_cmd() {
 }
 
 # Resolve this repo's root from lib.sh's location.
-TOOLKIT_LIGHT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export TOOLKIT_LIGHT_ROOT
+TOOLKIT_LITE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export TOOLKIT_LITE_ROOT

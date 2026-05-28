@@ -1,4 +1,4 @@
-# toolkit-light
+# toolkit-lite
 
 A small, portable installer that sets up (and keeps up to date) the everyday
 CLI toolchain for AI-assisted development. Run it once to install; re-run any
@@ -35,15 +35,15 @@ share, and run on a fresh Mac (or Linux box).
 ## Usage
 
 ```sh
-git clone git@github.com:geilt/toolkit-lite.git ~/environment/toolkit-light
-cd ~/environment/toolkit-light
+git clone git@github.com:geilt/toolkit-lite.git ~/environment/toolkit-lite
+cd ~/environment/toolkit-lite
 ./install.sh                  # install/update everything (prompts once for a tmux name)
 ```
 
 Keep things current later:
 
 ```sh
-cd ~/environment/toolkit-light
+cd ~/environment/toolkit-lite
 git pull
 ./install.sh --update         # update all, no prompts
 ```
@@ -52,7 +52,7 @@ Other flags:
 
 ```sh
 ./install.sh --only tmux,node          # run just specific components
-TOOLKIT_LIGHT_USERNAME=sam ./install.sh  # preset the tmux status-bar name
+TOOLKIT_LITE_USERNAME=sam ./install.sh   # preset the tmux status-bar name
 ```
 
 After it finishes, open a new shell (or `exec $SHELL -l`) so PATH and nvm load.
@@ -113,7 +113,7 @@ the current path, Alt+arrows to move panes, Shift+arrows to switch windows,
 ## Layout
 
 ```
-toolkit-light/
+toolkit-lite/
 ├── install.sh          # entry point (install + update, idempotent)
 ├── lib.sh              # helpers: logging, OS detection, brew/pkg install
 ├── installers/         # one self-contained, re-runnable script per tool

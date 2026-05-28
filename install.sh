@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# toolkit-light — install / update a developer's everyday CLI toolchain.
+# toolkit-lite — install / update a developer's everyday CLI toolchain.
 #
 # Idempotent: run it once to install, re-run any time to update everything to
 # latest. No personal config, no secrets — safe to share / make public.
@@ -23,7 +23,7 @@
 #   ./install.sh                  # interactive install/update (prompts for name first run)
 #   ./install.sh --update         # same, but never prompt (reuse existing tmux name)
 #   ./install.sh --only tmux,node # run just the named components
-#   TOOLKIT_LIGHT_USERNAME=sam ./install.sh   # preset the tmux name, no prompt
+#   TOOLKIT_LITE_USERNAME=sam ./install.sh    # preset the tmux name, no prompt
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -34,7 +34,7 @@ UPDATE_ONLY=0
 ONLY=""
 while [ $# -gt 0 ]; do
   case "$1" in
-    --update) UPDATE_ONLY=1; export TOOLKIT_LIGHT_USERNAME="${TOOLKIT_LIGHT_USERNAME:-}" ;;
+    --update) UPDATE_ONLY=1; export TOOLKIT_LITE_USERNAME="${TOOLKIT_LITE_USERNAME:-${TOOLKIT_LIGHT_USERNAME:-}}" ;;
     --only)   ONLY="$2"; shift ;;
     -h|--help)
       sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
@@ -53,7 +53,7 @@ want() {
   case ",$ONLY," in *",$1,"*) return 0 ;; *) return 1 ;; esac
 }
 
-log "toolkit-light — $( [ "$UPDATE_ONLY" = 1 ] && echo update || echo install ) on $(os)"
+log "toolkit-lite — $( [ "$UPDATE_ONLY" = 1 ] && echo update || echo install ) on $(os)"
 
 # ---- prerequisites ----
 # ~/environment — where repos live (this toolkit included). Create if missing.

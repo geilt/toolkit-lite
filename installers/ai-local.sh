@@ -18,9 +18,9 @@ set -euo pipefail
 
 MLX_VENV="$HOME/.local/mlx"
 MLX_PORT="${MLX_PORT:-11435}"
-MLX_LABEL="toolkit-light.mlx-server"
+MLX_LABEL="toolkit-lite.mlx-server"
 MLX_PLIST="$HOME/Library/LaunchAgents/$MLX_LABEL.plist"
-LOG_DIR="$HOME/Library/Logs/toolkit-light"
+LOG_DIR="$HOME/Library/Logs/toolkit-lite"
 
 # ── Ollama ────────────────────────────────────────────────────────────────
 install_ollama() {
