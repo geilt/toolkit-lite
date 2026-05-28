@@ -5,6 +5,9 @@
 # latest. No personal config, no secrets — safe to share / make public.
 #
 # What it sets up:
+#   - ~/environment folder (where you keep your repos)
+#   - A GitHub SSH key (dev-key.priv/.pub) if you don't have one, added to the
+#     agent + wired into ~/.ssh/config (tells you which file to upload)
 #   - Homebrew (macOS, if missing)
 #   - jq, tmux
 #   - nvm + Node.js LTS
@@ -37,8 +40,9 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# Components in dependency order. node before codex/opencode (they need npm).
-COMPONENTS=(node tmux claude-code codex opencode grok cursor antigravity kimi)
+# Components in dependency order. ssh key + env folder first; node before
+# codex/opencode (they need npm).
+COMPONENTS=(ssh-github-key node tmux claude-code codex opencode grok cursor antigravity kimi)
 
 want() {
   [ -z "$ONLY" ] && return 0
@@ -48,6 +52,14 @@ want() {
 log "toolkit-light — $( [ "$UPDATE_ONLY" = 1 ] && echo update || echo install ) on $(os)"
 
 # ---- prerequisites ----
+# ~/environment — where repos live (this toolkit included). Create if missing.
+if [ ! -d "$HOME/environment" ]; then
+  log "creating ~/environment"
+  mkdir -p "$HOME/environment" && ok "created $HOME/environment"
+else
+  ok "~/environment exists"
+fi
+
 install_homebrew_if_missing
 if want jq; then pkg_install jq || warn "jq install skipped"; fi
 

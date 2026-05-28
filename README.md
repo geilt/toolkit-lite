@@ -11,6 +11,8 @@ share, and run on a fresh Mac (or Linux box).
 
 | Component | What | Binary |
 |---|---|---|
+| `~/environment` | folder for your repos (created if missing) | — |
+| GitHub SSH key | `dev-key` (`.priv`/`.pub`) created if absent, added to agent, wired into `~/.ssh/config`; tells you which file to upload | — |
 | Homebrew | package manager (macOS only, if missing) | `brew` |
 | jq | JSON CLI | `jq` |
 | nvm + Node LTS | JS runtime (needed by codex/opencode) | `node`, `npm` |
@@ -47,6 +49,23 @@ TOOLKIT_LIGHT_USERNAME=sam ./install.sh  # preset the tmux status-bar name
 ```
 
 After it finishes, open a new shell (or `exec $SHELL -l`) so PATH and nvm load.
+
+## GitHub SSH key
+
+On first run, if `~/.ssh/dev-key.priv` doesn't exist, the installer offers to
+generate an ed25519 key pair:
+
+- `~/.ssh/dev-key.priv` — private (chmod 600, added to the ssh-agent; on macOS, the keychain)
+- `~/.ssh/dev-key.pub` — public (chmod 644, **this is the file you upload to GitHub**)
+
+It also adds a `Host github.com` block to `~/.ssh/config` pointing at the key
+(only if one isn't already there), prints the public key (and copies it to the
+clipboard on macOS), and tells you to add it at **GitHub → Settings → SSH and
+GPG keys → New SSH key**. Test with `ssh -T git@github.com`.
+
+If the key already exists, the installer leaves it untouched and never
+re-prompts — it just makes sure it's loaded in the agent. Keys live in `~/.ssh`
+directly; this tool deliberately does **not** use any shared/iCloud folder.
 
 ## tmux
 
