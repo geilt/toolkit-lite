@@ -35,7 +35,7 @@ share, and run on a fresh Mac (or Linux box).
 ## Usage
 
 ```sh
-git clone <this-repo> ~/environment/toolkit-light
+git clone git@github.com:geilt/toolkit-lite.git ~/environment/toolkit-light
 cd ~/environment/toolkit-light
 ./install.sh                  # install/update everything (prompts once for a tmux name)
 ```
