@@ -36,8 +36,9 @@ install_ollama() {
     if brew services list 2>/dev/null | grep -qE '^ollama[[:space:]]+started'; then
       ok "ollama: service already running"
     else
-      brew services start ollama >/dev/null 2>&1 && ok "ollama: service started (auto-starts at login)" \
-        || warn "ollama: couldn't start service (try: brew services start ollama)"
+      # restart (not start) clears a stopped *or* errored service in one shot.
+      brew services restart ollama >/dev/null 2>&1 && ok "ollama: service started (auto-starts at login)" \
+        || warn "ollama: couldn't start service (try: brew services restart ollama)"
     fi
   else
     if command -v ollama >/dev/null 2>&1; then
