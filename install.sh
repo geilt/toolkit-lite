@@ -6,12 +6,14 @@
 #
 # What it sets up:
 #   - ~/environment folder (where you keep your repos)
-#   - A GitHub SSH key (dev-key.priv/.pub) if you don't have one, added to the
-#     agent + wired into ~/.ssh/config (tells you which file to upload)
+#   - A git SSH key (dev-key.priv/.pub) if you don't have one, added to the
+#     agent + wired into ~/.ssh/config for GitHub + Bitbucket (tells you which
+#     file to upload)
 #   - Homebrew (macOS, if missing)
 #   - jq, tmux
 #   - nvm + Node.js LTS
 #   - tmux config (vi keys, mouse, status bar — prompts once for a name)
+#   - Dev CLIs: GitHub CLI (gh), Atlassian CLI (acli), Docker + Compose
 #   - Agentic coding CLIs: claude-code, codex, opencode, grok, cursor,
 #     antigravity, kimi
 #
@@ -40,9 +42,9 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# Components in dependency order. ssh key + env folder first; node before
-# codex/opencode (they need npm).
-COMPONENTS=(ssh-github-key node tmux claude-code codex opencode grok cursor antigravity kimi)
+# Components in dependency order. ssh key first; node before codex/opencode
+# (they need npm); then dev CLIs; then the agentic CLIs.
+COMPONENTS=(ssh-git-key node tmux gh acli docker claude-code codex opencode grok cursor antigravity kimi)
 
 want() {
   [ -z "$ONLY" ] && return 0

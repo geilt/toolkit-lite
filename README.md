@@ -12,11 +12,14 @@ share, and run on a fresh Mac (or Linux box).
 | Component | What | Binary |
 |---|---|---|
 | `~/environment` | folder for your repos (created if missing) | — |
-| GitHub SSH key | `dev-key` (`.priv`/`.pub`) created if absent, added to agent, wired into `~/.ssh/config`; tells you which file to upload | — |
+| git SSH key | `dev-key` (`.priv`/`.pub`) created if absent, added to agent, wired into `~/.ssh/config` for GitHub + Bitbucket; tells you which file to upload | — |
 | Homebrew | package manager (macOS only, if missing) | `brew` |
 | jq | JSON CLI | `jq` |
 | nvm + Node LTS | JS runtime (needed by codex/opencode) | `node`, `npm` |
 | tmux | terminal multiplexer + a sensible config (vi keys, mouse, status bar) | `tmux` |
+| GitHub CLI | `gh` | `gh` |
+| Atlassian CLI | Jira/Confluence/Bitbucket CLI (tap `atlassian/homebrew-acli`) | `acli` |
+| Docker + Compose | Docker Desktop on macOS (or Colima via `DOCKER_RUNTIME=colima`); Docker Engine on Linux | `docker`, `docker compose` |
 | Claude Code | Anthropic CLI | `claude` |
 | Codex | OpenAI CLI (`@openai/codex`) | `codex` |
 | opencode | sst/opencode (`opencode-ai`) | `opencode` |
@@ -50,22 +53,31 @@ TOOLKIT_LIGHT_USERNAME=sam ./install.sh  # preset the tmux status-bar name
 
 After it finishes, open a new shell (or `exec $SHELL -l`) so PATH and nvm load.
 
-## GitHub SSH key
+## git SSH key
 
 On first run, if `~/.ssh/dev-key.priv` doesn't exist, the installer offers to
-generate an ed25519 key pair:
+generate an ed25519 key pair usable with any git host:
 
 - `~/.ssh/dev-key.priv` — private (chmod 600, added to the ssh-agent; on macOS, the keychain)
-- `~/.ssh/dev-key.pub` — public (chmod 644, **this is the file you upload to GitHub**)
+- `~/.ssh/dev-key.pub` — public (chmod 644, **this is the file you upload**)
 
-It also adds a `Host github.com` block to `~/.ssh/config` pointing at the key
-(only if one isn't already there), prints the public key (and copies it to the
-clipboard on macOS), and tells you to add it at **GitHub → Settings → SSH and
-GPG keys → New SSH key**. Test with `ssh -T git@github.com`.
+It adds `Host` blocks for **github.com and bitbucket.org** to `~/.ssh/config`
+pointing at the key (each only if not already present), prints the public key
+(and copies it to the clipboard on macOS), and tells you where to add it
+(GitHub → Settings → SSH and GPG keys; Bitbucket → Personal settings → SSH
+keys). Test with `ssh -T git@github.com` (or `git@bitbucket.org`).
 
 If the key already exists, the installer leaves it untouched and never
 re-prompts — it just makes sure it's loaded in the agent. Keys live in `~/.ssh`
 directly; this tool deliberately does **not** use any shared/iCloud folder.
+
+## Docker
+
+macOS installs **Docker Desktop** (cask) by default. On a headless/remote Mac
+(no GUI), run `DOCKER_RUNTIME=colima ./install.sh --only docker` to use
+**Colima** instead (lightweight, SSH-friendly; start it with `colima start`).
+Linux installs the Docker Engine via the official script. Compose v2 is the
+`docker compose` subcommand in all cases.
 
 ## tmux
 
