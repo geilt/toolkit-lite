@@ -15,6 +15,7 @@ share, and run on a fresh Mac (or Linux box).
 | git SSH key | `dev-key` (`.priv`/`.pub`) created if absent, added to agent, wired into `~/.ssh/config` for GitHub + Bitbucket; tells you which file to upload | — |
 | Homebrew | package manager (macOS only, if missing) | `brew` |
 | jq | JSON CLI | `jq` |
+| CLI utilities | ripgrep, fd, fzf, bat, wget, gnupg | `rg`, `fd`, `fzf`, `bat`, `wget`, `gpg` |
 | nvm + Node LTS | JS runtime (needed by codex/opencode) | `node`, `npm` |
 | tmux | terminal multiplexer + a sensible config (vi keys, mouse, status bar) | `tmux` |
 | GitHub CLI | `gh` | `gh` |
