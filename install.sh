@@ -15,6 +15,7 @@
 #   - nvm + Node.js LTS
 #   - tmux config (vi keys, mouse, status bar — prompts once for a name)
 #   - Dev CLIs: GitHub CLI (gh), Atlassian CLI (acli), Docker + Compose
+#   - Local inference: Ollama (service), Hugging Face CLI, MLX (Apple Silicon)
 #   - Agentic coding CLIs: claude-code, codex, opencode, grok, cursor,
 #     antigravity, kimi
 #
@@ -45,7 +46,7 @@ done
 
 # Components in dependency order. ssh key first; node before codex/opencode
 # (they need npm); then dev CLIs; then the agentic CLIs.
-COMPONENTS=(ssh-git-key node tmux cli-tools gh acli docker claude-code codex opencode grok cursor antigravity kimi)
+COMPONENTS=(ssh-git-key node tmux cli-tools gh acli docker ai-local claude-code codex opencode grok cursor antigravity kimi)
 
 want() {
   [ -z "$ONLY" ] && return 0

@@ -35,29 +35,73 @@ add_to_agent() {
   fi
 }
 
-# Append a Host block for a git host to ~/.ssh/config, only if one isn't there.
-wire_host() {
-  local host="$1" cfg="$SSH_DIR/config"
-  if [ -f "$cfg" ] && grep -qiE "^[[:space:]]*Host[[:space:]]+${host//./\\.}([[:space:]]|\$)" "$cfg"; then
-    log "ssh: $cfg already has a $host block — not modifying it"
-    return 0
-  fi
-  {
-    printf '\nHost %s\n' "$host"
-    printf '  HostName %s\n' "$host"
-    printf '  User git\n'
-    printf '  IdentityFile %s\n' "$PRIV"
-    printf '  AddKeysToAgent yes\n'
-    [ "$(os)" = "macos" ] && printf '  UseKeychain yes\n'
-  } >> "$cfg"
-  chmod 600 "$cfg"
-  ok "ssh: added a $host block to $cfg (uses dev-key)"
+# True if the `Host <host>` block in $cfg already references our dev-key.
+host_block_has_key() {
+  local host="$1" cfg="$2"
+  [ -f "$cfg" ] || return 1
+  awk -v host="$host" '
+    tolower($1)=="host" { inblk=0; for (i=2;i<=NF;i++) if ($i==host) inblk=1; next }
+    inblk { print }
+  ' "$cfg" | grep -qiE 'IdentityFile[[:space:]]+.*dev-key\.priv'
 }
 
-# ── Already exists → leave it alone (don't re-prompt, don't overwrite) ──
+# True if a `Host <host>` block exists at all.
+host_block_exists() {
+  local host="$1" cfg="$2"
+  [ -f "$cfg" ] || return 1
+  awk -v host="$host" '
+    tolower($1)=="host" { for (i=2;i<=NF;i++) if ($i==host) { found=1 } }
+    END { exit(found?0:1) }
+  ' "$cfg"
+}
+
+# Ensure ~/.ssh/config sets the dev-key as the IdentityFile for a git host.
+# The friend almost certainly has no prepared config, so we do a real file edit:
+#   · no block for the host        → append a full block
+#   · block exists, our key set     → leave it (already wired)
+#   · block exists, our key missing → back up, then inject IdentityFile into it
+wire_host() {
+  local host="$1" cfg="$SSH_DIR/config"
+  [ -f "$cfg" ] || { : > "$cfg"; chmod 600 "$cfg"; }
+
+  if ! host_block_exists "$host" "$cfg"; then
+    {
+      printf '\nHost %s\n' "$host"
+      printf '  HostName %s\n' "$host"
+      printf '  User git\n'
+      printf '  IdentityFile %s\n' "$PRIV"
+      printf '  AddKeysToAgent yes\n'
+      [ "$(os)" = "macos" ] && printf '  UseKeychain yes\n'
+    } >> "$cfg"
+    chmod 600 "$cfg"
+    ok "ssh: added a $host block to $cfg (uses dev-key)"
+    return 0
+  fi
+
+  if host_block_has_key "$host" "$cfg"; then
+    ok "ssh: $host block already points at dev-key — leaving it"
+    return 0
+  fi
+
+  # Block exists but lacks our key — inject IdentityFile right after the Host line.
+  local bak="$cfg.bak.$(date +%Y%m%d-%H%M%S)" tmp="$cfg.tmp.$$"
+  cp -p "$cfg" "$bak"
+  awk -v host="$host" -v key="$PRIV" '
+    { print }
+    !done && tolower($1)=="host" {
+      for (i=2;i<=NF;i++) if ($i==host) { print "  IdentityFile " key; done=1; break }
+    }
+  ' "$cfg" > "$tmp" && mv "$tmp" "$cfg"
+  chmod 600 "$cfg"
+  ok "ssh: set dev-key as IdentityFile in the existing $host block (backup: $bak)"
+}
+
+# ── Already exists → keep the key, but still ensure the agent + ssh config are
+#    wired (re-runs must converge: a friend may have a key but no config yet) ──
 if [ -f "$PRIV" ]; then
-  ok "ssh: dev-key already exists at $PRIV — leaving it as-is"
+  ok "ssh: dev-key already exists at $PRIV — leaving the key as-is"
   add_to_agent
+  for h in $GIT_HOSTS; do wire_host "$h"; done
   log "Reminder: the file to upload to your git host(s) is the PUBLIC key → $PUB"
   exit 0
 fi

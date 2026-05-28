@@ -21,6 +21,9 @@ share, and run on a fresh Mac (or Linux box).
 | GitHub CLI | `gh` | `gh` |
 | Atlassian CLI | Jira/Confluence/Bitbucket CLI (tap `atlassian/homebrew-acli`) | `acli` |
 | Docker + Compose | Docker Desktop on macOS (or Colima via `DOCKER_RUNTIME=colima`); Docker Engine on Linux | `docker`, `docker compose` |
+| Ollama | local LLM server, started + enabled at boot | `ollama` |
+| Hugging Face CLI | model/dataset downloads from huggingface.co | `hf` |
+| MLX + mlx-lm | Apple's local-inference framework + server (Apple Silicon only) | `mlx_lm.server` |
 | Claude Code | Anthropic CLI | `claude` |
 | Codex | OpenAI CLI (`@openai/codex`) | `codex` |
 | opencode | sst/opencode (`opencode-ai`) | `opencode` |
@@ -79,6 +82,21 @@ macOS installs **Docker Desktop** (cask) by default. On a headless/remote Mac
 **Colima** instead (lightweight, SSH-friendly; start it with `colima start`).
 Linux installs the Docker Engine via the official script. Compose v2 is the
 `docker compose` subcommand in all cases.
+
+## Local inference (Ollama / MLX / Hugging Face)
+
+`./install.sh --only ai-local` sets up a local model stack:
+
+- **Ollama** — installed and started as a background service (macOS via
+  `brew services`, Linux via systemd), so the API on `:11434` is up after a
+  reboot. Pull a model with `ollama pull qwen2.5-coder` when you want one.
+- **Hugging Face CLI** (`hf`) — for fetching models/datasets from the Hub.
+- **MLX + mlx-lm** — **Apple Silicon only** (skipped on Intel/Linux). Installed
+  into a dedicated `python@3.12` venv at `~/.local/mlx`, with an
+  OpenAI-compatible `mlx_lm.server` running as a LaunchAgent on `:11435`
+  (loads models on demand — nothing is pre-downloaded).
+
+No models are pre-pulled; both servers fetch on first use.
 
 ## tmux
 
