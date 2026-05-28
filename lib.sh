@@ -87,6 +87,24 @@ require_cmd() {
   command -v "$1" >/dev/null 2>&1 || die "missing required command: $1"
 }
 
+# ---------------------------------------------------------------------------
+# load_node — put nvm's default node/npm on PATH for THIS shell.
+# Each installer runs as its own process, so the npm-based ones (codex,
+# opencode) must load nvm themselves: the parent install.sh shell may never
+# have sourced it (nvm normally loads via ~/.zshrc / ~/.bashrc, which a
+# non-interactive install run doesn't read). No-op if npm is already present
+# (e.g. a Homebrew node).
+# ---------------------------------------------------------------------------
+load_node() {
+  command -v npm >/dev/null 2>&1 && return 0
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  if [ -s "$NVM_DIR/nvm.sh" ]; then
+    # shellcheck disable=SC1091
+    . "$NVM_DIR/nvm.sh" >/dev/null 2>&1
+    nvm use default >/dev/null 2>&1 || nvm use --lts >/dev/null 2>&1 || true
+  fi
+}
+
 # Resolve this repo's root from lib.sh's location.
 TOOLKIT_LITE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export TOOLKIT_LITE_ROOT

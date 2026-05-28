@@ -26,13 +26,20 @@ if [ "$(os)" = "macos" ]; then
     ok "docker: Colima installed — start the VM with: colima start"
   else
     if brew list --cask docker >/dev/null 2>&1; then
-      log "docker: Docker Desktop present — updating"
+      log "docker: Docker Desktop present (brew-managed) — updating"
       brew upgrade --cask docker 2>/dev/null || true
+    elif [ -d "/Applications/Docker.app" ]; then
+      # Docker.app exists but wasn't installed by brew → a plain `brew install
+      # --cask docker` errors ("already an App at ..."). Try to adopt it into
+      # brew; if that's unsupported, leave the working install untouched.
+      log "docker: Docker.app already installed (not via brew) — adopting into brew"
+      brew install --cask docker --adopt 2>/dev/null \
+        || ok "docker: existing Docker.app left as-is (brew couldn't adopt it; no action needed)"
     else
       log "docker: installing Docker Desktop (cask)"
       brew install --cask docker || { warn "docker: cask install failed"; exit 1; }
     fi
-    ok "docker: Docker Desktop installed — launch Docker.app once to start the engine"
+    ok "docker: Docker Desktop ready — launch Docker.app once to start the engine"
     log "docker: on a headless/remote box, re-run with DOCKER_RUNTIME=colima instead"
   fi
 else

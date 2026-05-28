@@ -3,6 +3,7 @@
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/../lib.sh"
 
+load_node   # ensure nvm's node/npm is on PATH even when run from install.sh
 require_cmd npm
 PKG="@openai/codex"
 
