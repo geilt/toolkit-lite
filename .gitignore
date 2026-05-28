@@ -1,0 +1,21 @@
+# OS noise
+.DS_Store
+._.DS_Store
+Thumbs.db
+
+# Editor noise
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local backups the installers create
+*.bak.[0-9]*
+
+# Never commit secrets (defensive — this repo shouldn't contain any)
+*.key
+*.pem
+*.env
+.env
+.env.*
+*credentials*.json

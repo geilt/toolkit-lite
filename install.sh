@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# toolkit-light — install / update a developer's everyday CLI toolchain.
+#
+# Idempotent: run it once to install, re-run any time to update everything to
+# latest. No personal config, no secrets — safe to share / make public.
+#
+# What it sets up:
+#   - Homebrew (macOS, if missing)
+#   - jq, tmux
+#   - nvm + Node.js LTS
+#   - tmux config (vi keys, mouse, status bar — prompts once for a name)
+#   - Agentic coding CLIs: claude-code, codex, opencode, grok, cursor,
+#     antigravity, kimi
+#
+# Usage:
+#   ./install.sh                  # interactive install/update (prompts for name first run)
+#   ./install.sh --update         # same, but never prompt (reuse existing tmux name)
+#   ./install.sh --only tmux,node # run just the named components
+#   TOOLKIT_LIGHT_USERNAME=sam ./install.sh   # preset the tmux name, no prompt
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "$ROOT/lib.sh"
+
+# ---- args ----
+UPDATE_ONLY=0
+ONLY=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --update) UPDATE_ONLY=1; export TOOLKIT_LIGHT_USERNAME="${TOOLKIT_LIGHT_USERNAME:-}" ;;
+    --only)   ONLY="$2"; shift ;;
+    -h|--help)
+      sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0 ;;
+    *) warn "unknown arg: $1" ;;
+  esac
+  shift
+done
+
+# Components in dependency order. node before codex/opencode (they need npm).
+COMPONENTS=(node tmux claude-code codex opencode grok cursor antigravity kimi)
+
+want() {
+  [ -z "$ONLY" ] && return 0
+  case ",$ONLY," in *",$1,"*) return 0 ;; *) return 1 ;; esac
+}
+
+log "toolkit-light — $( [ "$UPDATE_ONLY" = 1 ] && echo update || echo install ) on $(os)"
+
+# ---- prerequisites ----
+install_homebrew_if_missing
+if want jq; then pkg_install jq || warn "jq install skipped"; fi
+
+# ---- run components ----
+declare -a RAN=() FAILED=()
+for c in "${COMPONENTS[@]}"; do
+  want "$c" || continue
+  printf '\n'
+  if bash "$ROOT/installers/$c.sh"; then
+    RAN+=("$c")
+  else
+    FAILED+=("$c")
+    warn "$c failed (continuing)"
+  fi
+done
+
+# ---- summary ----
+printf '\n'
+log "summary"
+printf '  installed/updated: %s\n' "${RAN[*]:-none}"
+[ "${#FAILED[@]}" -gt 0 ] && printf '  %sfailed:%s            %s\n' "$_C_YELLOW" "$_C_RESET" "${FAILED[*]}"
+printf '\n'
+ok "done. Open a new shell (or 'exec \$SHELL -l') so PATH + nvm load."
+[ "${#FAILED[@]}" -eq 0 ] || exit 1

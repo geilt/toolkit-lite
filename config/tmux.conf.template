@@ -1,0 +1,93 @@
+# ─── Terminal & Color Support ─────────────────────────────────────────
+set -g default-terminal "xterm-256color"
+set -ga terminal-overrides ",xterm-256color:Tc"
+set -ga terminal-overrides ",*256col*:Tc"
+set -ga terminal-overrides ",alacritty:Tc"
+
+# VSCode integrated terminal support
+set -ga terminal-overrides ",xterm*:Tc"
+
+# ─── General Settings ─────────────────────────────────────────────────
+set -g mouse on
+set -g history-limit 50000
+set -g display-time 3000
+set -g status-interval 5
+set -g focus-events on
+set -g set-clipboard on
+set -sg escape-time 0
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+
+# ─── Prefix ───────────────────────────────────────────────────────────
+# Keep C-b, add C-a as secondary
+set -g prefix C-b
+set -g prefix2 C-a
+bind C-a send-prefix -2
+
+# ─── Window & Pane Splitting ──────────────────────────────────────────
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+bind c new-window -c "#{pane_current_path}"
+
+# Vim-style pane navigation
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Alt+arrow pane navigation (no prefix needed)
+bind -n M-Left  select-pane -L
+bind -n M-Right select-pane -R
+bind -n M-Up    select-pane -U
+bind -n M-Down  select-pane -D
+
+# Pane resizing with prefix + Shift+arrow
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Window navigation
+bind -n S-Left  previous-window
+bind -n S-Right next-window
+
+# ─── Copy Mode (vi) ──────────────────────────────────────────────────
+setw -g mode-keys vi
+bind Enter copy-mode
+bind -T copy-mode-vi v   send -X begin-selection
+bind -T copy-mode-vi y   send -X copy-selection-and-cancel
+bind -T copy-mode-vi C-v send -X rectangle-toggle
+
+# ─── Reload Config ───────────────────────────────────────────────────
+bind r source-file ~/.tmux.conf \; display-message "Config reloaded"
+
+# ─── Activity & Monitoring ───────────────────────────────────────────
+setw -g monitor-activity on
+set -g visual-activity off
+
+# ─── Pane Borders ────────────────────────────────────────────────────
+set -g pane-border-style fg=colour240
+set -g pane-active-border-style fg=colour39
+
+# ─── Status Bar ──────────────────────────────────────────────────────
+set -g status-position bottom
+set -g status-style bg=colour234,fg=colour250
+
+# Left: {username}:tmux:{session}:{pwd basename as env}
+set -g status-left-length 60
+set -g status-left "#[fg=colour16,bg=colour39,bold] __USERNAME__:tmux:#S:#(basename #{pane_current_path}) #[fg=colour39,bg=colour234,nobold] "
+
+# Right: date + time
+set -g status-right-length 50
+set -g status-right "#[fg=colour245] %a %b %d #[fg=colour39,bold]%H:%M "
+
+# Window tabs
+setw -g window-status-format " #[fg=colour245]#I:#W "
+setw -g window-status-current-format "#[fg=colour16,bg=colour39,bold] #I:#W #[fg=colour39,bg=colour234]"
+setw -g window-status-activity-style fg=colour214,bold
+setw -g window-status-separator ""
+
+# ─── Messages & Command Line ─────────────────────────────────────────
+set -g message-style bg=colour39,fg=colour16,bold
+set -g message-command-style bg=colour234,fg=colour250
