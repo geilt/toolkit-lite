@@ -25,21 +25,23 @@ if [ "$(os)" = "macos" ]; then
     done
     ok "docker: Colima installed — start the VM with: colima start"
   else
+    # Docker Desktop (GUI). Detection priority:
+    #   1. brew-managed cask          → upgrade it
+    #   2. Docker.app already present  → installed outside brew (e.g. a web
+    #      download); leave it ALONE — don't reinstall over a working app
+    #   3. neither                     → install the cask
     if brew list --cask docker >/dev/null 2>&1; then
       log "docker: Docker Desktop present (brew-managed) — updating"
       brew upgrade --cask docker 2>/dev/null || true
-    elif [ -d "/Applications/Docker.app" ]; then
-      # Docker.app exists but wasn't installed by brew → a plain `brew install
-      # --cask docker` errors ("already an App at ..."). Try to adopt it into
-      # brew; if that's unsupported, leave the working install untouched.
-      log "docker: Docker.app already installed (not via brew) — adopting into brew"
-      brew install --cask docker --adopt 2>/dev/null \
-        || ok "docker: existing Docker.app left as-is (brew couldn't adopt it; no action needed)"
+      ok "docker: Docker Desktop ready — launch Docker.app once to start the engine"
+    elif [ -d "/Applications/Docker.app" ] || [ -d "$HOME/Applications/Docker.app" ]; then
+      ok "docker: Docker Desktop already installed (outside brew) — skipping install"
+      log "docker: to let brew manage its updates instead, run: brew install --cask docker --adopt"
     else
       log "docker: installing Docker Desktop (cask)"
       brew install --cask docker || { warn "docker: cask install failed"; exit 1; }
+      ok "docker: Docker Desktop ready — launch Docker.app once to start the engine"
     fi
-    ok "docker: Docker Desktop ready — launch Docker.app once to start the engine"
     log "docker: on a headless/remote box, re-run with DOCKER_RUNTIME=colima instead"
   fi
 else
@@ -56,10 +58,36 @@ fi
 command -v docker >/dev/null 2>&1 \
   && ok "docker CLI: $(docker --version 2>/dev/null || echo installed)" \
   || warn "docker: CLI not on PATH yet (Docker Desktop may need a first launch)"
+# --- Compose v2 ---------------------------------------------------------------
+# Make `docker compose` (and `docker-compose`) usable. Docker Desktop bundles
+# the plugin but only wires it up after its first launch; Colima and CLI-only
+# setups need the Homebrew formula. On macOS we also symlink the formula into
+# ~/.docker/cli-plugins so the `docker compose` subcommand works even before
+# Docker.app has ever been opened.
+link_compose_plugin() {   # macOS: expose the brew docker-compose as a CLI plugin
+  [ "$(os)" = "macos" ] || return 0
+  ensure_brew_on_path || return 0
+  local src; src="$(brew --prefix 2>/dev/null)/opt/docker-compose/bin/docker-compose"
+  [ -x "$src" ] || return 0
+  mkdir -p "$HOME/.docker/cli-plugins"
+  ln -sfn "$src" "$HOME/.docker/cli-plugins/docker-compose" 2>/dev/null || true
+}
+
+if ! docker compose version >/dev/null 2>&1 && ! command -v docker-compose >/dev/null 2>&1; then
+  if [ "$(os)" = "macos" ] && ensure_brew_on_path; then
+    log "compose: not found — installing the docker-compose formula"
+    brew list docker-compose >/dev/null 2>&1 || brew install docker-compose \
+      || warn "compose: brew install docker-compose failed"
+  fi
+fi
+# Always wire the brew docker-compose (if present) as a CLI plugin so the
+# `docker compose` subcommand works — covers Colima + never-launched Desktop.
+[ "$(os)" = "macos" ] && link_compose_plugin
+
 if docker compose version >/dev/null 2>&1; then
   ok "compose: $(docker compose version 2>/dev/null | head -1)"
 elif command -v docker-compose >/dev/null 2>&1; then
-  ok "compose: $(docker-compose --version 2>/dev/null)"
+  ok "compose (standalone): $(docker-compose --version 2>/dev/null)"
 else
-  log "compose: available as 'docker compose' once the engine is running"
+  log "compose: 'docker compose' will be available once the engine (Docker.app/colima) is running"
 fi

@@ -34,6 +34,18 @@ share, and run on a fresh Mac (or Linux box).
 
 ## Usage
 
+One-liner (clones into `~/environment/toolkit-lite`, then runs the installer):
+
+```sh
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/bootstrap.sh)"
+# wget works too:
+bash -c "$(wget -qO- https://raw.githubusercontent.com/geilt/toolkit-lite/main/bootstrap.sh)"
+# pass flags through after a --, e.g.:
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/bootstrap.sh)" -- --only node,tmux
+```
+
+Or clone it yourself:
+
 ```sh
 git clone git@github.com:geilt/toolkit-lite.git ~/environment/toolkit-lite
 cd ~/environment/toolkit-lite
