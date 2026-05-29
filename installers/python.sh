@@ -52,6 +52,18 @@ for t in $UV_TOOLS; do
   fi
 done
 
+# 3b. venv safety net. `venv` ships with CPython — uv's managed pythons include
+#     it, and `uv venv` doesn't even need it. The ONE exception is Debian/Ubuntu,
+#     which split the *system* python's venv/ensurepip into the python3-venv apt
+#     package. Ensure it's present so a plain `/usr/bin/python3 -m venv` works for
+#     anyone using the system interpreter directly. (No-op on macOS/dnf/yum,
+#     where venv ships with the base python.)
+if [ "$(os)" = "linux" ] && [ "$(linux_pkg_mgr)" = "apt" ] \
+   && [ -x /usr/bin/python3 ] && ! /usr/bin/python3 -c 'import ensurepip, venv' >/dev/null 2>&1; then
+  log "python: system python3 lacks venv — installing python3-venv (Debian/Ubuntu splits it out)"
+  pkg_install python3-venv || warn "python: python3-venv install failed"
+fi
+
 # 4. Make sure uv's bin dir (python3 shim + tool executables) is on PATH in
 #    future shells (edits your shell rc; harmless if already present).
 uv tool update-shell 2>/dev/null || true
