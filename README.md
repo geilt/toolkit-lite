@@ -22,6 +22,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 | Homebrew | package manager (macOS only, if missing) | `brew` |
 | jq | JSON CLI | `jq` |
 | CLI utilities | ripgrep, fd, fzf, bat, wget, gnupg | `rg`, `fd`, `fzf`, `bat`, `wget`, `gpg` |
+| Python (uv) | uv + CPython 3.11/3.12/3.13 (3.12 default) + ruff/ipython/httpie/pre-commit | `uv`, `python3`, `ruff` |
 | nvm + Node LTS | JS runtime (needed by codex/opencode) | `node`, `npm` |
 | tmux | terminal multiplexer + a sensible config (vi keys, mouse, status bar) | `tmux` |
 | GitHub CLI | `gh` | `gh` |
@@ -115,6 +116,25 @@ Linux installs the Docker Engine via the official script. Compose v2 is the
   (loads models on demand — nothing is pre-downloaded).
 
 No models are pre-pulled; both servers fetch on first use.
+
+## Python (uv)
+
+Installs [uv](https://docs.astral.sh/uv/) — one fast binary that replaces
+`venv`, `pipx`, `pyenv`, and `pip`/`poetry` for most workflows:
+
+```sh
+uv venv / uv run …      # ephemeral or project envs (no manual venv)
+uv python install 3.13  # manage CPython versions (no pyenv)
+uv tool install <cli>   # global CLI tools, isolated (no pipx); uvx <cli> to run once
+uv add / uv sync        # project dependencies (no global pip installs)
+```
+
+It installs CPython **3.11, 3.12, 3.13** side by side and makes **3.12** the
+default `python`/`python3`. (No global libraries — those belong in per-project
+envs via `uv add`.) Standardized global tools: **ruff** (lint/format),
+**ipython**, **httpie** (`http`), **pre-commit**. Python 2 is intentionally not
+installed (EOL since 2020); guaranteeing a real `python3` avoids the old
+`python` ambiguity.
 
 ## tmux
 

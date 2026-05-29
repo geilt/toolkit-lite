@@ -12,6 +12,7 @@
 #   - Homebrew (macOS, if missing)
 #   - jq, tmux
 #   - CLI utilities: ripgrep, fd, fzf, bat, wget, gnupg
+#   - Python: uv + CPython 3.11/3.12/3.13 (3.12 default) + ruff/ipython/httpie/pre-commit
 #   - nvm + Node.js LTS
 #   - tmux config (vi keys, mouse, status bar — prompts once for a name)
 #   - Dev CLIs: GitHub CLI (gh), Atlassian CLI (acli), Docker + Compose
@@ -46,7 +47,7 @@ done
 
 # Components in dependency order. ssh key first; node before codex/opencode
 # (they need npm); then dev CLIs; then the agentic CLIs.
-COMPONENTS=(ssh-git-key node tmux cli-tools gh acli docker ai-local claude-code codex opencode grok cursor antigravity kimi)
+COMPONENTS=(ssh-git-key node tmux cli-tools python gh acli docker ai-local claude-code codex opencode grok cursor antigravity kimi)
 
 want() {
   [ -z "$ONLY" ] && return 0
