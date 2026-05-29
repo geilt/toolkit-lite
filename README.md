@@ -7,6 +7,12 @@ time to update everything to the latest.
 No personal config, no secrets, no machine-specific assumptions — safe to fork,
 share, and run on a fresh Mac (or Linux box).
 
+## Quick install
+
+```sh
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/bootstrap.sh)"
+```
+
 ## What it installs
 
 | Component | What | Binary |
