@@ -19,21 +19,29 @@ fi
 ok "tmux: $(tmux -V)"
 
 # 2. Determine the status-bar name.
-#    Priority: $TOOLKIT_LITE_USERNAME env → existing ~/.tmux.conf → prompt.
+#    If TOOLKIT_LITE_USERNAME is set, use it directly (no prompt). Otherwise
+#    prompt with a sensible default shown in (parens) — press Enter to accept.
+#    Default priority: name chosen in the shell-prompt step → an existing
+#    ~/.tmux.conf name → the system username.
 #    (TOOLKIT_LIGHT_USERNAME still honored as a fallback for older callers.)
+STATE_FILE="$HOME/.config/toolkit-lite/preferred-name"
 username="${TOOLKIT_LITE_USERNAME:-${TOOLKIT_LIGHT_USERNAME:-}}"
-if [ -z "$username" ] && [ -f "$TARGET" ]; then
-  # Pull the name back out of an already-managed status-left line.
-  username="$(sed -n 's/.*status-left .*bold\] \([a-z0-9_-]*\):tmux:.*/\1/p' "$TARGET" | head -1)"
-fi
 if [ -z "$username" ]; then
-  if [ -t 0 ]; then
-    printf 'Enter your preferred name (used in the tmux status bar): '
-    read -r raw
-    username="$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
+  default=""
+  [ -f "$STATE_FILE" ] && default="$(head -1 "$STATE_FILE" 2>/dev/null)"
+  if [ -z "$default" ] && [ -f "$TARGET" ]; then
+    default="$(sed -n 's/.*status-left .*bold\] \([a-z0-9_-]*\):tmux:.*/\1/p' "$TARGET" | head -1)"
   fi
-  [ -n "$username" ] || username="$(id -un)"   # fallback: system user
+  [ -n "$default" ] || default="$(id -un)"
+  if [ -t 0 ]; then
+    printf 'Name for the tmux status bar (%s): ' "$default"
+    read -r raw
+    username="$(printf '%s' "${raw:-$default}" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
+  else
+    username="$default"
+  fi
 fi
+[ -n "$username" ] || username="$(id -un)"   # final fallback: system user
 log "tmux: status-bar name = $username"
 
 # 3. Render template → ~/.tmux.conf (back up an existing file first).

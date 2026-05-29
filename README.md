@@ -24,6 +24,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 | CLI utilities | ripgrep, fd, fzf, bat, wget, gnupg | `rg`, `fd`, `fzf`, `bat`, `wget`, `gpg` |
 | Python (uv) | uv + CPython 3.11/3.12/3.13 (3.12 default) + ruff/ipython/httpie/pre-commit | `uv`, `python3`, `ruff` |
 | nvm + Node LTS | JS runtime (needed by codex/opencode) | `node`, `npm` |
+| Shell prompt | colored `username@hostname` PS1 for zsh + bash (green/blue) | — |
 | tmux | terminal multiplexer + a sensible config (vi keys, mouse, status bar) | `tmux` |
 | GitHub CLI | `gh` | `gh` |
 | Atlassian CLI | Jira/Confluence/Bitbucket CLI (tap `atlassian/homebrew-acli`) | `acli` |
@@ -136,10 +137,26 @@ envs via `uv add`.) Standardized global tools: **ruff** (lint/format),
 installed (EOL since 2020); guaranteeing a real `python3` avoids the old
 `python` ambiguity.
 
+## Shell prompt
+
+Runs just before tmux. If your shell rc has no `PS1` set yet, it offers to
+install a colored `username@hostname:dir` prompt (green name, blue path — the
+same scheme as the TLD Toolkit) into `~/.zshrc` and `~/.bashrc` (both are
+checked on macOS; at least `~/.bashrc` on Linux). Inside tmux the host shows as
+`tmux`. It never clobbers an existing prompt.
+
+You're shown the current username and hostname as defaults — press Enter to keep
+them, or type your own. On macOS, if you pick a hostname different from the
+machine's, it asks (required y/n) whether to also change the **local hostname**
+(System Settings → Sharing → `hostname.local`) via `scutil`. Whatever name you
+choose carries over as the default for the tmux status-bar prompt, so you can
+press Enter there to use the same one.
+
 ## tmux
 
 First run prompts for a name shown in the tmux status bar (lowercased, spaces
-stripped). On later runs it reuses the name already baked into `~/.tmux.conf`,
+stripped). The current/derived name is shown in parentheses — press Enter to
+accept it. On later runs it reuses the name already baked into `~/.tmux.conf`,
 so updates never re-prompt. An existing `~/.tmux.conf` is backed up to
 `~/.tmux.conf.bak.<timestamp>` before being rewritten. Reload inside tmux with
 `prefix + r` (prefix is `C-b`, with `C-a` as a secondary).
