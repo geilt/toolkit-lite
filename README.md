@@ -39,6 +39,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 | Cursor | Cursor agent CLI (aliased `cursor`) | `cursor-agent` |
 | Antigravity | Google CLI (replaces gemini-cli) | `antigravity` |
 | Kimi | Moonshot Kimi Code CLI | `kimi` |
+| Agent settings | disable Co-Authored-By git trailers (Claude + Codex) | — |
 
 ## Usage
 
@@ -164,6 +165,19 @@ so updates never re-prompt. An existing `~/.tmux.conf` is backed up to
 Config highlights: vi copy-mode (`v`/`y`), mouse on, `|`/`-` splits that keep
 the current path, Alt+arrows to move panes, Shift+arrows to switch windows,
 50k-line scrollback.
+
+## Agent settings
+
+Runs last, after the agentic CLIs are installed. Stops them from stamping
+`Co-Authored-By` / "Generated with …" trailers onto your git commits:
+
+- **Claude Code** (`~/.claude/settings.json`): sets `includeCoAuthoredBy: false`.
+- **Codex** (`~/.codex/config.toml`): sets `commit_attribution = ""`.
+
+Only those keys are touched — MCP servers, auth, and your other preferences are
+preserved, and the file is backed up before any change. (Cursor and opencode
+also add trailers but expose no documented off-switch yet; grok/kimi/antigravity
+have none known.) This installer does **not** change permission/sandbox modes.
 
 ## Layout
 

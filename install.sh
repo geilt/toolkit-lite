@@ -20,6 +20,7 @@
 #   - Local inference: Ollama (service), Hugging Face CLI, MLX (Apple Silicon)
 #   - Agentic coding CLIs: claude-code, codex, opencode, grok, cursor,
 #     antigravity, kimi
+#   - Agent settings: disable Co-Authored-By git trailers (claude + codex)
 #
 # Usage:
 #   ./install.sh                  # interactive install/update (prompts for name first run)
@@ -48,7 +49,7 @@ done
 
 # Components in dependency order. ssh key first; node before codex/opencode
 # (they need npm); then dev CLIs; then the agentic CLIs.
-COMPONENTS=(ssh-git-key node shell-prompt tmux cli-tools python gh acli docker ai-local claude-code codex opencode grok cursor antigravity kimi)
+COMPONENTS=(ssh-git-key node shell-prompt tmux cli-tools python gh acli docker ai-local claude-code codex opencode grok cursor antigravity kimi agent-settings)
 
 want() {
   [ -z "$ONLY" ] && return 0
