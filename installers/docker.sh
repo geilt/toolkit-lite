@@ -12,7 +12,42 @@
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/../lib.sh"
 
-RUNTIME="${DOCKER_RUNTIME:-desktop}"   # desktop | colima
+# Detect existing installations on macOS
+HAS_COLIMA=0
+HAS_DESKTOP=0
+if [ "$(os)" = "macos" ]; then
+  if command -v colima >/dev/null 2>&1; then
+    HAS_COLIMA=1
+  fi
+  if [ -d "/Applications/Docker.app" ] || [ -d "$HOME/Applications/Docker.app" ] || { ensure_brew_on_path && brew list --cask docker >/dev/null 2>&1; }; then
+    HAS_DESKTOP=1
+  fi
+fi
+
+# Determine runtime (desktop | colima)
+RUNTIME="${DOCKER_RUNTIME:-}"
+if [ -z "$RUNTIME" ] && [ "$(os)" = "macos" ]; then
+  if [ "$HAS_COLIMA" -eq 1 ] && [ "$HAS_DESKTOP" -eq 0 ]; then
+    RUNTIME="colima"
+  elif [ "$HAS_DESKTOP" -eq 1 ] && [ "$HAS_COLIMA" -eq 0 ]; then
+    RUNTIME="desktop"
+  elif [ -t 0 ]; then
+    printf '\n'
+    log "Docker Runtime Selection"
+    echo "Please choose the Docker runtime to install/update on macOS:"
+    echo "  1) Docker Desktop (Official GUI application, recommended for local dev)"
+    echo "  2) Colima (Lightweight, CLI-only, runs Docker inside a VM without GUI)"
+    printf 'Enter choice [1/2, default 1]: '
+    read -r choice
+    case "$choice" in
+      2) RUNTIME="colima" ;;
+      *) RUNTIME="desktop" ;;
+    esac
+  else
+    RUNTIME="desktop"
+  fi
+fi
+RUNTIME="${RUNTIME:-desktop}"
 
 if [ "$(os)" = "macos" ]; then
   ensure_brew_on_path || { warn "docker: brew missing"; exit 1; }
