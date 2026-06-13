@@ -77,7 +77,60 @@ nvm install "$CHOSEN_VERSION"
 nvm alias default "$CHOSEN_VERSION" >/dev/null
 nvm use "$CHOSEN_VERSION" >/dev/null
 
-# 3. npm itself
+# 3. Optimize NVM shell startup if present in shell profiles
+optimize_nvm_in_file() {
+  local file="$1"
+  [ -f "$file" ] || return 0
+
+  if grep -q "nvm.sh" "$file"; then
+    if grep -q "toolkit-lite: nvm" "$file" || grep -q "triur: nvm" "$file"; then
+      return 0
+    fi
+
+    log "node: optimizing NVM startup in $(basename "$file") for faster shell loading"
+    local temp; temp="$(mktemp)"
+    while IFS= read -r line || [ -n "$line" ]; do
+      case "$line" in
+        *NVM_DIR=*|*nvm.sh*|*bash_completion*)
+          # Skip standard slow loading lines
+          ;;
+        *)
+          printf '%s\n' "$line" >> "$temp"
+          ;;
+      esac
+    done < "$file"
+    cat "$temp" > "$file"
+    rm -f "$temp"
+
+    cat <<'EOF' >> "$file"
+
+# >>> toolkit-lite: nvm >>>
+export NVM_DIR="$HOME/.nvm"
+if [ -z "${NVM_BIN:-}" ] && [ -f "$NVM_DIR/alias/default" ]; then
+  DEFAULT_NODE_VER=$(cat "$NVM_DIR/alias/default" 2>/dev/null || true)
+  if [ -n "$DEFAULT_NODE_VER" ]; then
+    export PATH="$NVM_DIR/versions/node/v$DEFAULT_NODE_VER/bin:$PATH"
+    export NVM_BIN="$NVM_DIR/versions/node/v$DEFAULT_NODE_VER/bin"
+  fi
+fi
+
+if ! type nvm >/dev/null 2>&1; then
+  nvm() {
+    unset -f nvm node npm npx
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    nvm "$@"
+  }
+fi
+# <<< toolkit-lite: nvm <<<
+EOF
+  fi
+}
+
+for f in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile"; do
+  optimize_nvm_in_file "$f"
+done
+
+# 4. npm itself
 npm install -g npm@latest >/dev/null 2>&1 || warn "node: npm self-update skipped"
 
 ok "node ready: $(node -v) / npm $(npm -v)"
