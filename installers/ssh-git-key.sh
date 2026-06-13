@@ -16,9 +16,36 @@ set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/../lib.sh"
 
 SSH_DIR="$HOME/.ssh"
-PRIV="$SSH_DIR/dev-key.priv"
-PUB="$SSH_DIR/dev-key.pub"
 GIT_HOSTS="github.com bitbucket.org"   # hosts to wire into ~/.ssh/config
+
+STATE_DIR="$HOME/.config/toolkit-lite"
+pref_name=""
+[ -f "$STATE_DIR/preferred-name" ] && pref_name="$(head -1 "$STATE_DIR/preferred-name" 2>/dev/null)"
+chosen_user="${pref_name:-$(id -un)}"
+
+PRIV=""
+PUB=""
+
+# Check for legacy dev-key.priv or any dev-key-*.priv
+if [ -f "$SSH_DIR/dev-key.priv" ]; then
+  PRIV="$SSH_DIR/dev-key.priv"
+  PUB="$SSH_DIR/dev-key.pub"
+else
+  # Check for any existing dev-key-*.priv files
+  for f in "$SSH_DIR"/dev-key-*.priv; do
+    if [ -f "$f" ]; then
+      PRIV="$f"
+      PUB="${f%.priv}.pub"
+      break
+    fi
+  done
+fi
+
+# If no existing key is found, define the path using the chosen username suffix
+if [ -z "$PRIV" ]; then
+  PRIV="$SSH_DIR/dev-key-${chosen_user}.priv"
+  PUB="$SSH_DIR/dev-key-${chosen_user}.pub"
+fi
 
 mkdir -p "$SSH_DIR"
 chmod 700 "$SSH_DIR"
@@ -75,7 +102,7 @@ host_block_has_key() {
   awk -v host="$host" '
     tolower($1)=="host" { inblk=0; for (i=2;i<=NF;i++) if ($i==host) inblk=1; next }
     inblk { print }
-  ' "$cfg" | grep -qiE 'IdentityFile[[:space:]]+.*dev-key\.priv'
+  ' "$cfg" | grep -qiE 'IdentityFile[[:space:]]+.*dev-key.*\.priv'
 }
 
 # True if a `Host <host>` block exists at all.

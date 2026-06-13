@@ -97,10 +97,10 @@ If you choose not to configure it, the installer will skip the setup and continu
 
 ## git SSH key & commit attribution
 
-On first run, if `~/.ssh/dev-key.priv` doesn't exist (or if global git config name/email are missing), the installer prompts you to configure your global Git commit settings (`user.name` and `user.email`) and offers to generate an ed25519 key pair usable with any git host:
+On first run, if a key matching `~/.ssh/dev-key-*` doesn't exist (or if global git config name/email are missing), the installer prompts you to configure your global Git commit settings (`user.name` and `user.email`) and offers to generate an ed25519 key pair usable with any git host:
 
-- `~/.ssh/dev-key.priv` — private (chmod 600, added to the ssh-agent; on macOS, the keychain)
-- `~/.ssh/dev-key.pub` — public (chmod 644, **this is the file you upload**)
+- `~/.ssh/dev-key-{username}.priv` — private (chmod 600, added to the ssh-agent; on macOS, the keychain)
+- `~/.ssh/dev-key-{username}.pub` — public (chmod 644, **this is the file you upload**)
 
 It adds `Host` blocks for **github.com and bitbucket.org** to `~/.ssh/config`
 pointing at the key (each only if not already present), prints the public key,

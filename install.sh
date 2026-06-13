@@ -6,7 +6,7 @@
 #
 # What it sets up:
 #   - ~/environment folder (where you keep your repos)
-#   - A git SSH key (dev-key.priv/.pub) if you don't have one, added to the
+#   - A git SSH key (dev-key-{username}.priv/.pub) if you don't have one, added to the
 #     agent + wired into ~/.ssh/config for GitHub + Bitbucket (tells you which
 #     file to upload)
 #   - Homebrew (macOS, if missing)
