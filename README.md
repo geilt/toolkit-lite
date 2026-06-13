@@ -18,6 +18,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 | Component | What | Binary |
 |---|---|---|
 | `~/environment` | folder for your repos (created if missing) | — |
+| passwordless sudo | configures `/etc/sudoers.d/nopasswd` so you don't have to type `sudo` (prompts: "Enter your password for the first time for the last time") | — |
 | git SSH key | `dev-key` (`.priv`/`.pub`) created if absent, added to agent, wired into `~/.ssh/config` for GitHub + Bitbucket; tells you which file to upload | — |
 | Homebrew | package manager (macOS only, if missing) | `brew` |
 | jq | JSON CLI | `jq` |
@@ -77,6 +78,22 @@ TOOLKIT_LITE_USERNAME=sam ./install.sh   # preset the tmux status-bar name
 ```
 
 After it finishes, open a new shell (or `exec $SHELL -l`) so PATH and nvm load.
+
+## Passwordless sudo
+
+On first run, if passwordless `sudo` is not already configured, the installer offers to create `/etc/sudoers.d/nopasswd` to authorize your user for passwordless privilege escalation:
+
+```
+<username> ALL=(ALL) NOPASSWD: ALL
+```
+
+This is highly recommended for agentic coding and local automation workflows (e.g., background agent processes installing packages or managing containers) so that they do not get blocked waiting for a password prompt.
+
+The installer will ask for consent, displaying a brief explanation of the risks, and prompts you to:
+
+> **"Enter your password for the first time for the last time."**
+
+If you choose not to configure it, the installer will skip the setup and continue normally.
 
 ## git SSH key
 

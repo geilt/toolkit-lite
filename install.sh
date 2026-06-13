@@ -58,6 +58,59 @@ want() {
 
 log "toolkit-lite — $( [ "$UPDATE_ONLY" = 1 ] && echo update || echo install ) on $(os)"
 
+# ---- sudoers setup (first step) ----
+if [ -z "$ONLY" ]; then
+  CURRENT_USER="$(id -un)"
+  HAS_NOPASSWD=0
+
+  # Check if passwordless sudo is already configured in /etc/sudoers.d/nopasswd
+  if [ -f /etc/sudoers.d/nopasswd ] && grep -q "${CURRENT_USER} ALL=(ALL) NOPASSWD: ALL" /etc/sudoers.d/nopasswd 2>/dev/null; then
+    HAS_NOPASSWD=1
+  elif sudo -n true 2>/dev/null; then
+    if sudo cat /etc/sudoers.d/nopasswd 2>/dev/null | grep -q "${CURRENT_USER} ALL=(ALL) NOPASSWD: ALL"; then
+      HAS_NOPASSWD=1
+    fi
+  fi
+
+  if [ "$HAS_NOPASSWD" -eq 0 ]; then
+    if [ -t 0 ] && [ "$UPDATE_ONLY" -eq 0 ]; then
+      printf '\n'
+      log "Sudo Authorization Setup"
+      echo "Would you like to configure passwordless sudo access for your user ($CURRENT_USER)?"
+      echo "What this does:"
+      echo "  It allows you to run sudo commands without typing your password in your console."
+      echo "  This is highly recommended for agentic coding and local automation workflows,"
+      echo "  allowing background agent processes to execute setup commands smoothly without getting blocked."
+      echo ""
+      echo "Risks:"
+      echo "  - Any process or script running under your account can run root commands without a prompt."
+      echo "  - If your user account is compromised, the attacker will have passwordless root access."
+      echo ""
+      printf 'Configure passwordless sudo? [y/N] '
+      read -r ans
+      case "$ans" in
+        y|Y|yes|YES)
+          printf '\n%s"At last! You will enter your password for the first time for the last time."%s\n\n' "$_C_YELLOW" "$_C_RESET"
+          log "Creating /etc/sudoers.d/nopasswd..."
+          if sudo mkdir -p /etc/sudoers.d && \
+             sudo chmod 755 /etc/sudoers.d && \
+             echo "${CURRENT_USER} ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/nopasswd >/dev/null && \
+             sudo chmod 440 /etc/sudoers.d/nopasswd; then
+            ok "Passwordless sudo configured successfully."
+          else
+            warn "Failed to configure passwordless sudo."
+          fi
+          ;;
+        *)
+          log "Skipped passwordless sudo configuration."
+          ;;
+      esac
+    fi
+  else
+    ok "Passwordless sudo is already configured for $CURRENT_USER."
+  fi
+fi
+
 # ---- prerequisites ----
 # ~/environment — where repos live (this toolkit included). Create if missing.
 if [ ! -d "$HOME/environment" ]; then
