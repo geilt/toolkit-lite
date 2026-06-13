@@ -157,8 +157,7 @@ installed (EOL since 2020); guaranteeing a real `python3` avoids the old
 ## Shell prompt
 
 Runs just before tmux. If your shell rc has no `PS1` set yet, it offers to
-install a colored `username@hostname:dir` prompt (green name, blue path — the
-same scheme as the TLD Toolkit) into `~/.zshrc` and `~/.bashrc` (both are
+install a colored `username@hostname:dir` prompt (green name, blue path) into `~/.zshrc` and `~/.bashrc` (both are
 checked on macOS; at least `~/.bashrc` on Linux). Inside tmux the host shows as
 `tmux`. It never clobbers an existing prompt.
 
@@ -242,6 +241,6 @@ that tool, e.g. `bash installers/codex.sh`.
 
 ## Credits
 
-tmux config adapted from the TLD Toolkit. Tool install recipes mirror the
-maintainer's personal `macos-toolkit` bootstrap, stripped of all personal /
-machine-specific configuration.
+tmux config and tool install recipes mirror the maintainer's personal
+`macos-toolkit` bootstrap, stripped of all personal / machine-specific
+configuration.
