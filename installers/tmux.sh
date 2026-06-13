@@ -52,10 +52,36 @@ sed "s/__USERNAME__/$username/g" "$TEMPLATE" > "$TARGET"
 ok "tmux: wrote $TARGET (reload inside tmux with: prefix + r)"
 
 # 4. Create the 'dev' shortcut script in ~/.local/bin/dev
-mkdir -p "$HOME/.local/bin"
-DEV_CMD="$HOME/.local/bin/dev"
-log "tmux: creating 'dev' shortcut script at $DEV_CMD"
-cat <<'EOF' > "$DEV_CMD"
+# Check if tldtoolkit is installed on this machine
+TLD_PRESENT=0
+[ -d "$HOME/environment/tldtoolkit" ] && TLD_PRESENT=1
+for f in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+  [ -f "$f" ] && grep -qi "tldtoolkit" "$f" && TLD_PRESENT=1
+done
+
+INSTALL_DEV=1
+if [ "$TLD_PRESENT" -eq 1 ]; then
+  if [ -t 0 ]; then
+    printf '\n'
+    log "Dev Command Detection"
+    echo "The 'dev' command is already managed/installed by the TLD Toolkit (tldtoolkit) on this machine."
+    printf "Would you like to install/overwrite the standalone version anyway under ~/.local/bin/dev? [y/N] "
+    read -r ans
+    case "$ans" in
+      y|Y|yes|YES) INSTALL_DEV=1 ;;
+      *)           INSTALL_DEV=0; log "Skipped installing standalone 'dev' command." ;;
+    esac
+  else
+    # Non-interactive fallback when tldtoolkit is present: don't overwrite
+    INSTALL_DEV=0
+  fi
+fi
+
+if [ "$INSTALL_DEV" -eq 1 ]; then
+  mkdir -p "$HOME/.local/bin"
+  DEV_CMD="$HOME/.local/bin/dev"
+  log "tmux: creating 'dev' shortcut script at $DEV_CMD"
+  cat <<'EOF' > "$DEV_CMD"
 #!/usr/bin/env bash
 # Quick wrapper to attach to, create, or list dev tmux sessions.
 
@@ -95,5 +121,6 @@ fi
 printf '\033]0;tmux:%s\007' "$SESSION"
 exec tmux attach-session -t "$SESSION" 2>/dev/null || exec tmux new-session -s "$SESSION"
 EOF
-chmod +x "$DEV_CMD"
-ok "tmux: 'dev' command created (type 'dev' to start/attach to your 'dev' tmux session)"
+  chmod +x "$DEV_CMD"
+  ok "tmux: 'dev' command created (type 'dev' to start/attach to your 'dev' tmux session)"
+fi
