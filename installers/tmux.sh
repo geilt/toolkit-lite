@@ -83,7 +83,10 @@ if [ "$INSTALL_DEV" -eq 1 ]; then
   log "tmux: creating 'dev' shortcut script at $DEV_CMD"
   cat <<'EOF' > "$DEV_CMD"
 #!/usr/bin/env bash
-# Quick wrapper to attach to, create, or list dev tmux sessions.
+# Quick wrapper to attach to, create, list, or close dev tmux sessions.
+
+SESSION="dev"
+ACTION="attach"
 
 case "${1:-}" in
   list|--list|-l)
@@ -102,20 +105,43 @@ case "${1:-}" in
     exit 0
     ;;
   help|--help|-h)
-    echo "Usage: dev [session_name | list | -l | --list]"
+    echo "Usage: dev [session_name [kill|close] | list | -l | --list | kill | close]"
     echo "  Without arguments: Attaches to or creates a tmux session named 'dev'"
     echo "  <session_name>:    Attaches to or creates a tmux session named 'dev-<session_name>'"
     echo "  list, -l, --list:  Lists active tmux sessions starting with 'dev'"
+    echo "  kill, close:       Closes the default tmux session named 'dev'"
+    echo "  <session_name> kill|close: Closes the tmux session named 'dev-<session_name>'"
     exit 0
+    ;;
+  kill|close)
+    SESSION="dev"
+    ACTION="kill"
+    ;;
+  *)
+    if [ -n "${1:-}" ]; then
+      # Sanitize the suffix (lowercase, alphanumeric/hyphens/underscores)
+      clean_suffix="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]_-')"
+      SESSION="dev-${clean_suffix}"
+      if [ "${2:-}" = "kill" ] || [ "${2:-}" = "close" ]; then
+        ACTION="kill"
+      fi
+    fi
     ;;
 esac
 
-# Attach or create session
-SESSION="dev"
-if [ -n "${1:-}" ]; then
-  # Sanitize the suffix (lowercase, alphanumeric/hyphens/underscores)
-  clean_suffix="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]_-')"
-  SESSION="dev-${clean_suffix}"
+if ! command -v tmux >/dev/null 2>&1; then
+  echo "tmux is not installed."
+  exit 1
+fi
+
+if [ "$ACTION" = "kill" ]; then
+  if tmux has-session -t "$SESSION" 2>/dev/null; then
+    tmux kill-session -t "$SESSION"
+    echo "Closed tmux session '$SESSION'."
+  else
+    echo "Tmux session '$SESSION' does not exist."
+  fi
+  exit 0
 fi
 
 printf '\033]0;tmux:%s\007' "$SESSION"
