@@ -57,8 +57,43 @@ DEV_CMD="$HOME/.local/bin/dev"
 log "tmux: creating 'dev' shortcut script at $DEV_CMD"
 cat <<'EOF' > "$DEV_CMD"
 #!/usr/bin/env bash
-# Quick wrapper to attach to or create a tmux session named 'dev'.
-exec tmux attach-session -t dev 2>/dev/null || exec tmux new-session -s dev
+# Quick wrapper to attach to, create, or list dev tmux sessions.
+
+case "${1:-}" in
+  list|--list|-l)
+    if ! command -v tmux >/dev/null 2>&1; then
+      echo "tmux is not installed."
+      exit 1
+    fi
+    # Filter sessions starting with "dev"
+    sessions="$(tmux list-sessions 2>/dev/null | grep "^dev" || true)"
+    if [ -z "$sessions" ]; then
+      echo "No active dev tmux sessions."
+    else
+      echo "Active dev tmux sessions:"
+      echo "$sessions"
+    fi
+    exit 0
+    ;;
+  help|--help|-h)
+    echo "Usage: dev [session_name | list | -l | --list]"
+    echo "  Without arguments: Attaches to or creates a tmux session named 'dev'"
+    echo "  <session_name>:    Attaches to or creates a tmux session named 'dev-<session_name>'"
+    echo "  list, -l, --list:  Lists active tmux sessions starting with 'dev'"
+    exit 0
+    ;;
+esac
+
+# Attach or create session
+SESSION="dev"
+if [ -n "${1:-}" ]; then
+  # Sanitize the suffix (lowercase, alphanumeric/hyphens/underscores)
+  clean_suffix="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]_-')"
+  SESSION="dev-${clean_suffix}"
+fi
+
+printf '\033]0;tmux:%s\007' "$SESSION"
+exec tmux attach-session -t "$SESSION" 2>/dev/null || exec tmux new-session -s "$SESSION"
 EOF
 chmod +x "$DEV_CMD"
 ok "tmux: 'dev' command created (type 'dev' to start/attach to your 'dev' tmux session)"
