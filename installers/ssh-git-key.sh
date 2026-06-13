@@ -23,6 +23,39 @@ GIT_HOSTS="github.com bitbucket.org"   # hosts to wire into ~/.ssh/config
 mkdir -p "$SSH_DIR"
 chmod 700 "$SSH_DIR"
 
+open_url() {
+  local url="$1"
+  if [ "$(os)" = "macos" ]; then
+    open "$url" 2>/dev/null || true
+  else
+    if command -v xdg-open >/dev/null 2>&1; then
+      xdg-open "$url" 2>/dev/null || true
+    elif command -v sensible-browser >/dev/null 2>&1; then
+      sensible-browser "$url" 2>/dev/null || true
+    else
+      python3 -m webbrowser "$url" >/dev/null 2>&1 || true
+    fi
+  fi
+}
+
+copy_to_clipboard() {
+  local file="$1"
+  if [ "$(os)" = "macos" ]; then
+    if command -v pbcopy >/dev/null 2>&1; then
+      pbcopy < "$file" && return 0
+    fi
+  else
+    if command -v xclip >/dev/null 2>&1; then
+      xclip -sel clip < "$file" && return 0
+    elif command -v xsel >/dev/null 2>&1; then
+      xsel -ib < "$file" && return 0
+    elif [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-copy >/dev/null 2>&1; then
+      wl-copy < "$file" && return 0
+    fi
+  fi
+  return 1
+}
+
 add_to_agent() {
   if [ "$(os)" = "macos" ]; then
     ssh-add --apple-use-keychain "$PRIV" 2>/dev/null \
@@ -145,7 +178,41 @@ log "  Bitbucket -> Personal settings -> SSH keys -> Add key"
 printf '\n  file to upload: %s\n\n' "$PUB"
 sed 's/^/    /' "$PUB"
 printf '\n'
-if [ "$(os)" = "macos" ] && command -v pbcopy >/dev/null 2>&1; then
-  pbcopy < "$PUB" && ok "ssh: public key copied to your clipboard — just paste it in"
+
+if copy_to_clipboard "$PUB"; then
+  ok "ssh: public key copied to your clipboard — just paste it in!"
+else
+  warn "ssh: could not copy public key to clipboard automatically"
 fi
+
+if [ -t 0 ]; then
+  printf '\n'
+  log "Browser Integration"
+  echo "Would you like us to open the browser to the SSH settings page for you?"
+  echo "  1) Open GitHub settings (to add key directly)"
+  echo "  2) Open Bitbucket settings"
+  echo "  3) Open both"
+  echo "  4) Skip/No"
+  printf 'Enter choice [1-4, default 4]: '
+  read -r browser_choice
+  case "$browser_choice" in
+    1)
+      log "Opening GitHub settings..."
+      open_url "https://github.com/settings/ssh/new"
+      ;;
+    2)
+      log "Opening Bitbucket settings..."
+      open_url "https://bitbucket.org/account/settings/ssh-keys/"
+      ;;
+    3)
+      log "Opening GitHub and Bitbucket settings..."
+      open_url "https://github.com/settings/ssh/new"
+      open_url "https://bitbucket.org/account/settings/ssh-keys/"
+      ;;
+    *)
+      log "Skipped opening browser."
+      ;;
+  esac
+fi
+
 log "After uploading, test with:  ssh -T git@github.com   (or git@bitbucket.org)"

@@ -104,10 +104,10 @@ generate an ed25519 key pair usable with any git host:
 - `~/.ssh/dev-key.pub` — public (chmod 644, **this is the file you upload**)
 
 It adds `Host` blocks for **github.com and bitbucket.org** to `~/.ssh/config`
-pointing at the key (each only if not already present), prints the public key
-(and copies it to the clipboard on macOS), and tells you where to add it
-(GitHub → Settings → SSH and GPG keys; Bitbucket → Personal settings → SSH
-keys). Test with `ssh -T git@github.com` (or `git@bitbucket.org`).
+pointing at the key (each only if not already present), prints the public key,
+automatically copies it to the system clipboard (supporting macOS and Linux), and
+offers to open the browser directly to the SSH settings page on GitHub and/or Bitbucket
+for easy pasting. Test with `ssh -T git@github.com` (or `git@bitbucket.org`).
 
 If the key already exists, the installer leaves it untouched and never
 re-prompts — it just makes sure it's loaded in the agent. Keys live in `~/.ssh`
