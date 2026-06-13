@@ -94,8 +94,8 @@ case "${1:-}" in
       echo "tmux is not installed."
       exit 1
     fi
-    # Filter sessions starting with "dev"
-    sessions="$(tmux list-sessions 2>/dev/null | grep "^dev" || true)"
+    # Filter sessions starting with "dev" and strip/format prefix
+    sessions="$(tmux list-sessions 2>/dev/null | grep "^dev" | sed -E 's/^dev-([^:]+:)/\1/; s/^dev:/(default):/' || true)"
     if [ -z "$sessions" ]; then
       echo "No active dev tmux sessions."
     else
