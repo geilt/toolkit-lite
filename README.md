@@ -154,6 +154,15 @@ envs via `uv add`.) Standardized global tools: **ruff** (lint/format),
 installed (EOL since 2020); guaranteeing a real `python3` avoids the old
 `python` ambiguity.
 
+## Node.js (nvm & shell startup optimization)
+
+Installs **nvm** (Node Version Manager) and Node.js. It prompts for a default major version (defaulting to **24** LTS) and allows selecting other major versions (e.g. 25, 26).
+
+### Fast terminal startup (NVM lazy loading)
+Standard NVM setups source the full NVM environment on every terminal load, adding a significant delay (0.5s to 1.5s) to shell startup. To prevent this, the installer automatically optimizes your shell profiles (`~/.zshrc`, `~/.bashrc`, `~/.bash_profile`, and `~/.profile`):
+- **Instant PATH injection**: It extracts the default Node version directory path and prepends it directly to your `PATH`, so `node`, `npm`, and `npx` are immediately available.
+- **Lazy load function**: It defines a lightweight `nvm()` stub function that only loads the full NVM environment when you explicitly run the `nvm` command for the first time.
+
 ## Shell prompt
 
 Runs just before tmux. If your shell rc has no `PS1` set yet, it offers to
