@@ -77,27 +77,40 @@ printf 'Set up a colored shell prompt (username@hostname, green/blue)? [Y/n] '
 read -r ans
 case "${ans:-Y}" in n|N|no|NO) log "shell-prompt: skipped"; exit 0 ;; esac
 
-printf 'Username to show in the prompt (%s): ' "$def_user"
-read -r in_user; chosen_user="${in_user:-$def_user}"
+sanitize_input() {
+  local val="$1"
+  # Map Irish fadas to base ASCII equivalents
+  val="$(printf '%s' "$val" | tr 'áéíóúÁÉÍÓÚ' 'aeiouaeiou')"
+  # Convert to lowercase
+  val="$(printf '%s' "$val" | tr '[:upper:]' '[:lower:]')"
+  # Replace spaces with hyphens
+  val="$(printf '%s' "$val" | tr ' ' '-')"
+  # Remove all other non-alphanumeric, non-hyphen, non-underscore characters
+  val="$(printf '%s' "$val" | tr -cd '[:alnum:]_-')"
+  echo "$val"
+}
 
-printf 'Hostname to show in the prompt (%s): ' "$def_host"
+printf 'Username to show in the prompt (lowercase recommended) [%s]: ' "$def_user"
+read -r in_user; chosen_user="${in_user:-$def_user}"
+chosen_user="$(sanitize_input "$chosen_user")"
+
+printf 'Hostname to show in the prompt (lowercase recommended) [%s]: ' "$def_host"
 read -r in_host; chosen_host="${in_host:-$def_host}"
+chosen_host="$(sanitize_input "$chosen_host")"
 
 # macOS only: if the chosen hostname differs from the machine's, offer (required
 # y/n) to change the actual local hostname (Sharing → "hostname.local").
 if [ "$(os)" = "macos" ] && [ "$chosen_host" != "$def_host" ]; then
-  clean_host="$(printf '%s' "$chosen_host" | tr ' ' '-' | tr -cd '[:alnum:]-')"
   while :; do
-    printf "Also change this Mac's local hostname from '%s' to '%s' (System Settings → Sharing)? [y/n] " "$def_host" "$clean_host"
+    printf "Also change this Mac's local hostname from '%s' to '%s.local' (System Settings → Sharing)? [y/n] " "$def_host" "$chosen_host"
     read -r hn
     case "$hn" in
       y|Y|yes|YES)
-        log "shell-prompt: setting local hostname to '$clean_host' (may prompt for your password)"
-        sudo scutil --set HostName      "$clean_host"  2>/dev/null || warn "shell-prompt: failed to set HostName"
-        sudo scutil --set LocalHostName "$clean_host"  2>/dev/null || warn "shell-prompt: failed to set LocalHostName"
+        log "shell-prompt: setting local hostname to '$chosen_host' (may prompt for your password)"
+        sudo scutil --set HostName      "$chosen_host" 2>/dev/null || warn "shell-prompt: failed to set HostName"
+        sudo scutil --set LocalHostName "$chosen_host" 2>/dev/null || warn "shell-prompt: failed to set LocalHostName"
         sudo scutil --set ComputerName  "$chosen_host" 2>/dev/null || warn "shell-prompt: failed to set ComputerName"
-        chosen_host="$clean_host"
-        ok "shell-prompt: local hostname is now '$clean_host' (${clean_host}.local)"
+        ok "shell-prompt: local hostname is now '$chosen_host' (${chosen_host}.local)"
         break ;;
       n|N|no|NO)
         log "shell-prompt: leaving the system hostname; using '$chosen_host' in the prompt only"

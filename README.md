@@ -164,9 +164,10 @@ checked on macOS; at least `~/.bashrc` on Linux). Inside tmux the host shows as
 `tmux`. It never clobbers an existing prompt.
 
 You're shown the current username and hostname as defaults — press Enter to keep
-them, or type your own. On macOS, if you pick a hostname different from the
-machine's, it asks (required y/n) whether to also change the **local hostname**
-(System Settings → Sharing → `hostname.local`) via `scutil`. Whatever name you
+them, or type your own. The script recommends using lowercase values and automatically sanitizes
+inputs (converting to lowercase, replacing spaces with hyphens, and removing Irish fadas or accented characters).
+On macOS, if you pick a hostname different from the machine's, it asks (required y/n) whether to also
+change the actual **local hostname** (System Settings → Sharing → `hostname.local`, e.g., `croi.local`) via `scutil`. Whatever name you
 choose carries over as the default for the tmux status-bar prompt, so you can
 press Enter there to use the same one.
 
