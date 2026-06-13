@@ -129,6 +129,39 @@ wire_host() {
   ok "ssh: set dev-key as IdentityFile in the existing $host block (backup: $bak)"
 }
 
+# ── Git commit attribution config ──
+HAS_GIT_CONFIG=1
+if [ -z "$(git config --global user.name 2>/dev/null || true)" ] || [ -z "$(git config --global user.email 2>/dev/null || true)" ]; then
+  HAS_GIT_CONFIG=0
+fi
+
+# Prompt if git config is missing, or if we are in an interactive key creation flow
+if [ -t 0 ] && { [ "$HAS_GIT_CONFIG" -eq 0 ] || [ ! -f "$PRIV" ]; }; then
+  STATE_DIR="$HOME/.config/toolkit-lite"
+  pref_name=""
+  [ -f "$STATE_DIR/preferred-name" ] && pref_name="$(head -1 "$STATE_DIR/preferred-name" 2>/dev/null)"
+  
+  default_git_name="$(git config --global user.name 2>/dev/null || echo "${pref_name:-$(id -un)}")"
+  default_git_email="$(git config --global user.email 2>/dev/null || echo "$(id -un)@$(hostname -s 2>/dev/null || echo host).local")"
+
+  printf '\n'
+  log "Git Commit Attribution"
+  echo "Configure the name and email that will be stamped on your git commits."
+  
+  printf 'Git user name [%s]: ' "$default_git_name"
+  read -r git_name
+  chosen_git_name="${git_name:-$default_git_name}"
+
+  printf 'Git email address [%s]: ' "$default_git_email"
+  read -r git_email
+  chosen_git_email="${git_email:-$default_git_email}"
+
+  log "Setting global git config..."
+  git config --global user.name "$chosen_git_name"
+  git config --global user.email "$chosen_git_email"
+  ok "Git configured: $chosen_git_name <$chosen_git_email>"
+fi
+
 # ── Already exists → keep the key, but still ensure the agent + ssh config are
 #    wired (re-runs must converge: a friend may have a key but no config yet) ──
 if [ -f "$PRIV" ]; then

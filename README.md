@@ -19,7 +19,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 |---|---|---|
 | `~/environment` | folder for your repos (created if missing) | — |
 | passwordless sudo | configures `/etc/sudoers.d/nopasswd` so you don't have to type `sudo` (prompts: "Enter your password for the first time for the last time") | — |
-| git SSH key | `dev-key` (`.priv`/`.pub`) created if absent, added to agent, wired into `~/.ssh/config` for GitHub + Bitbucket; tells you which file to upload | — |
+| git SSH key & commit attribution | configures global Git commit settings (`user.name`/`user.email`) and creates `dev-key` (`.priv`/`.pub`) if absent, added to agent, wired into config, and copied to clipboard | — |
 | Homebrew | package manager (macOS only, if missing) | `brew` |
 | jq | JSON CLI | `jq` |
 | CLI utilities | ripgrep, fd, fzf, bat, wget, gnupg | `rg`, `fd`, `fzf`, `bat`, `wget`, `gpg` |
@@ -95,10 +95,9 @@ The installer will ask for consent, displaying a brief explanation of the risks,
 
 If you choose not to configure it, the installer will skip the setup and continue normally.
 
-## git SSH key
+## git SSH key & commit attribution
 
-On first run, if `~/.ssh/dev-key.priv` doesn't exist, the installer offers to
-generate an ed25519 key pair usable with any git host:
+On first run, if `~/.ssh/dev-key.priv` doesn't exist (or if global git config name/email are missing), the installer prompts you to configure your global Git commit settings (`user.name` and `user.email`) and offers to generate an ed25519 key pair usable with any git host:
 
 - `~/.ssh/dev-key.priv` — private (chmod 600, added to the ssh-agent; on macOS, the keychain)
 - `~/.ssh/dev-key.pub` — public (chmod 644, **this is the file you upload**)

@@ -90,7 +90,9 @@ sanitize_input() {
   echo "$val"
 }
 
-printf 'Username to show in the prompt (lowercase recommended) [%s]: ' "$def_user"
+echo "Choose a username to display in your shell prompt."
+echo "Note: This is for display purposes only and can differ from your macOS/Linux account name."
+printf 'Prompt username (lowercase recommended) [%s]: ' "$def_user"
 read -r in_user; chosen_user="${in_user:-$def_user}"
 chosen_user="$(sanitize_input "$chosen_user")"
 
