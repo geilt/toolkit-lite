@@ -26,7 +26,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 | Python (uv) | uv + CPython 3.11/3.12/3.13 (3.12 default) + ruff/ipython/httpie/pre-commit | `uv`, `python3`, `ruff` |
 | nvm + Node.js | JS runtime installer (prompts for default major version, defaults to 24) | `node`, `npm` |
 | Shell prompt | colored `username@hostname` PS1 for zsh + bash (green/blue) | — |
-| tmux | terminal multiplexer + a sensible config (vi keys, mouse, status bar) | `tmux` |
+| tmux & `dev` | terminal multiplexer + sensible config + instant `dev` session script | `tmux`, `dev` |
 | GitHub CLI | `gh` | `gh` |
 | Atlassian CLI | Jira/Confluence/Bitbucket CLI (tap `atlassian/homebrew-acli`) | `acli` |
 | Docker + Compose | Docker Desktop on macOS (or Colima via `DOCKER_RUNTIME=colima`); Docker Engine on Linux | `docker`, `docker compose` |
@@ -170,7 +170,7 @@ change the actual **local hostname** (System Settings → Sharing → `hostname.
 choose carries over as the default for the tmux status-bar prompt, so you can
 press Enter there to use the same one.
 
-## tmux
+## tmux & the `dev` command
 
 First run prompts for a name shown in the tmux status bar (lowercased, spaces
 stripped). The current/derived name is shown in parentheses — press Enter to
@@ -178,6 +178,13 @@ accept it. On later runs it reuses the name already baked into `~/.tmux.conf`,
 so updates never re-prompt. An existing `~/.tmux.conf` is backed up to
 `~/.tmux.conf.bak.<timestamp>` before being rewritten. Reload inside tmux with
 `prefix + r` (prefix is `C-b`, with `C-a` as a secondary).
+
+### The `dev` command
+The installer places a convenience `dev` script in `~/.local/bin/dev` (which is typically loaded onto your path). Typing `dev` in your shell will:
+- Automatically attach to an existing tmux session named `dev` if it is already running.
+- Create and start a new tmux session named `dev` if it isn't running yet.
+
+This makes starting or returning to your active development environment instantaneous.
 
 Config highlights: vi copy-mode (`v`/`y`), mouse on, `|`/`-` splits that keep
 the current path, Alt+arrows to move panes, Shift+arrows to switch windows,

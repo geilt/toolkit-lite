@@ -50,3 +50,15 @@ if [ -f "$TARGET" ]; then
 fi
 sed "s/__USERNAME__/$username/g" "$TEMPLATE" > "$TARGET"
 ok "tmux: wrote $TARGET (reload inside tmux with: prefix + r)"
+
+# 4. Create the 'dev' shortcut script in ~/.local/bin/dev
+mkdir -p "$HOME/.local/bin"
+DEV_CMD="$HOME/.local/bin/dev"
+log "tmux: creating 'dev' shortcut script at $DEV_CMD"
+cat <<'EOF' > "$DEV_CMD"
+#!/usr/bin/env bash
+# Quick wrapper to attach to or create a tmux session named 'dev'.
+exec tmux attach-session -t dev 2>/dev/null || exec tmux new-session -s dev
+EOF
+chmod +x "$DEV_CMD"
+ok "tmux: 'dev' command created (type 'dev' to start/attach to your 'dev' tmux session)"
