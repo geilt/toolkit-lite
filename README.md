@@ -33,7 +33,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 | Ollama | local LLM server, started + enabled at boot | `ollama` |
 | Hugging Face CLI | model/dataset downloads from huggingface.co | `hf` |
 | MLX + mlx-lm | Apple's local-inference framework + server (Apple Silicon only) | `mlx_lm.server` |
-| Claude Code | Anthropic CLI | `claude` |
+| Claude Code | Anthropic CLI (plus custom status panel) | `claude` |
 | Codex | OpenAI CLI (`@openai/codex`) | `codex` |
 | opencode | sst/opencode (`opencode-ai`) | `opencode` |
 | Grok | xAI CLI | `agent` |
@@ -194,7 +194,9 @@ By default, tools like Claude Code and Codex write metadata or co-author details
 - Violate corporate commit linting policies, pre-commit hooks, or templates that enforce strict formatting.
 
 ### Configured settings:
-- **Claude Code** (`~/.claude/settings.json`): Sets `includeCoAuthoredBy` to `false`.
+- **Claude Code** (`~/.claude/settings.json`):
+  - Sets `includeCoAuthoredBy` to `false`.
+  - Installs a custom status panel script (`~/.claude/statusline.sh`) and configures `statusLine` to display real-time session stats (hostname, working directory, git branch, active model, context usage bar, cost, duration, and files modified).
 - **Codex** (`~/.codex/config.toml`): Sets `commit_attribution` to `""`.
 
 ### Safety & Compatibility:
