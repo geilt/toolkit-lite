@@ -22,7 +22,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 | git SSH key & commit attribution | configures global Git commit settings (`user.name`/`user.email`) and creates `dev-key` (`.priv`/`.pub`) if absent, added to agent, wired into config, and copied to clipboard | — |
 | Homebrew | package manager (macOS only, if missing) | `brew` |
 | jq | JSON CLI | `jq` |
-| CLI utilities | ripgrep, fd, fzf, bat, wget, gnupg | `rg`, `fd`, `fzf`, `bat`, `wget`, `gpg` |
+| CLI utilities | git, ripgrep, fd, fzf, bat, wget, gnupg | `git`, `rg`, `fd`, `fzf`, `bat`, `wget`, `gpg` |
 | Python (uv) | uv + CPython 3.11/3.12/3.13 (3.12 default) + ruff/ipython/httpie/pre-commit | `uv`, `python3`, `ruff` |
 | nvm + Node LTS | JS runtime (needed by codex/opencode) | `node`, `npm` |
 | Shell prompt | colored `username@hostname` PS1 for zsh + bash (green/blue) | — |

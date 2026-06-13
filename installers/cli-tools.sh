@@ -14,7 +14,7 @@ set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/../lib.sh"
 
 # Logical tool list (brew formula names; remapped for Linux managers below).
-TOOLS="ripgrep fd fzf bat wget gnupg"
+TOOLS="git ripgrep fd fzf bat wget gnupg"
 
 # Map a logical tool name → the package name for the active package manager.
 pkg_for() {
@@ -45,7 +45,7 @@ done
 
 # Cosmetic summary of what landed on PATH (binary names, not package names).
 present=""
-for c in rg fd fdfind fzf bat batcat wget gpg; do
+for c in git rg fd fdfind fzf bat batcat wget gpg; do
   command -v "$c" >/dev/null 2>&1 && present="$present $c"
 done
 ok "cli-tools ready:${present:- (none on PATH yet — open a new shell)}"
