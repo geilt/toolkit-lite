@@ -32,13 +32,46 @@ if [ -z "$RUNTIME" ] && [ "$(os)" = "macos" ]; then
   elif [ "$HAS_DESKTOP" -eq 1 ] && [ "$HAS_COLIMA" -eq 0 ]; then
     RUNTIME="desktop"
   elif [ -t 0 ]; then
+    CPU_BRAND="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || sysctl -n hw.model 2>/dev/null || echo "Unknown CPU")"
+    RAM_GB=$(( $(sysctl -n hw.memsize 2>/dev/null || echo 0) / 1024 / 1024 / 1024 ))
+
+    SUGGESTION="Docker Desktop"
+    SUGGESTION_NUM=1
+    SUGGESTION_REASON="you have a powerful system with ample memory ($RAM_GB GB RAM)"
+
+    if [ "$RAM_GB" -le 16 ] && [ "$RAM_GB" -gt 0 ]; then
+      SUGGESTION="Colima"
+      SUGGESTION_NUM=2
+      SUGGESTION_REASON="your system has $RAM_GB GB RAM, and a lightweight CLI runtime will save valuable memory"
+    fi
+    if [ -n "${SSH_CONNECTION:-}" ] || [ -n "${SSH_CLIENT:-}" ]; then
+      SUGGESTION="Colima"
+      SUGGESTION_NUM=2
+      SUGGESTION_REASON="you are running in an SSH session (headless/remote mode)"
+    fi
+
     printf '\n'
     log "Docker Runtime Selection"
-    echo "Please choose the Docker runtime to install/update on macOS:"
-    echo "  1) Docker Desktop (Official GUI application, recommended for local dev)"
-    echo "  2) Colima (Lightweight, CLI-only, runs Docker inside a VM without GUI)"
-    printf 'Enter choice [1/2, default 1]: '
+    echo "Compare Runtimes:"
+    echo "  1) Docker Desktop (Official GUI application)"
+    echo "     - Benefits: GUI dashboard, built-in volume management, seamless file sharing."
+    echo "     - Cons: Heavier CPU/RAM footprint (running GUI wrapper + VM)."
+    echo "  2) Colima (Lightweight, CLI-only runtime)"
+    echo "     - Benefits: Minimal resource usage, runs headless (SSH friendly), fast, CLI-configured."
+    echo "     - Cons: No GUI dashboard."
+    echo ""
+    echo "Coexistence Info:"
+    echo "  Both can be installed together on macOS, but they should not run at the same time."
+    echo "  You can switch between them using 'docker context use default' or 'docker context use colima'."
+    echo ""
+    echo "System Specs: $CPU_BRAND ($RAM_GB GB RAM)"
+    echo "Recommendation: We suggest $SUGGESTION ($SUGGESTION_NUM) because $SUGGESTION_REASON."
+    echo ""
+    printf 'Enter choice [1/2, default %d]: ' "$SUGGESTION_NUM"
     read -r choice
+    if [ -z "$choice" ]; then
+      choice="$SUGGESTION_NUM"
+    fi
     case "$choice" in
       2) RUNTIME="colima" ;;
       *) RUNTIME="desktop" ;;
