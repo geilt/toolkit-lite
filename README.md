@@ -24,7 +24,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 | jq | JSON CLI | `jq` |
 | CLI utilities | git, ripgrep, fd, fzf, bat, wget, gnupg | `git`, `rg`, `fd`, `fzf`, `bat`, `wget`, `gpg` |
 | Python (uv) | uv + CPython 3.11/3.12/3.13 (3.12 default) + ruff/ipython/httpie/pre-commit | `uv`, `python3`, `ruff` |
-| nvm + Node LTS | JS runtime (needed by codex/opencode) | `node`, `npm` |
+| nvm + Node.js | JS runtime installer (prompts for default major version, defaults to 24) | `node`, `npm` |
 | Shell prompt | colored `username@hostname` PS1 for zsh + bash (green/blue) | — |
 | tmux | terminal multiplexer + a sensible config (vi keys, mouse, status bar) | `tmux` |
 | GitHub CLI | `gh` | `gh` |
