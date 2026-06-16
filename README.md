@@ -9,8 +9,16 @@ share, and run on a fresh Mac (or Linux box).
 
 ## Quick install
 
+### macOS / Linux
+
 ```sh
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/bootstrap.sh)"
+```
+
+### Windows (PowerShell)
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/geilt/toolkit-lite/main/bootstrap.ps1'))
 ```
 
 ## What it installs
@@ -44,6 +52,8 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/geilt/toolkit-lite/main/
 
 ## Usage
 
+### macOS / Linux
+
 One-liner (clones into `~/environment/toolkit-lite`, then runs the installer):
 
 ```sh
@@ -75,6 +85,36 @@ Other flags:
 ```sh
 ./install.sh --only tmux,node          # run just specific components
 TOOLKIT_LITE_USERNAME=sam ./install.sh   # preset the tmux status-bar name
+```
+
+### Windows (PowerShell)
+
+One-liner (clones into `~/environment/toolkit-lite`, then runs the installer):
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/geilt/toolkit-lite/main/bootstrap.ps1'))
+```
+
+Or clone it yourself:
+
+```powershell
+git clone git@github.com:geilt/toolkit-lite.git ~/environment/toolkit-lite
+cd ~/environment/toolkit-lite
+.\install.ps1
+```
+
+Keep things current later:
+
+```powershell
+cd ~/environment/toolkit-lite
+git pull
+.\install.ps1 -Update
+```
+
+Other flags:
+
+```powershell
+.\install.ps1 -Only node,python
 ```
 
 After it finishes, open a new shell (or `exec $SHELL -l`) so PATH and nvm load.
@@ -224,18 +264,20 @@ By default, tools like Claude Code and Codex write metadata or co-author details
 
 ```
 toolkit-lite/
-├── install.sh          # entry point (install + update, idempotent)
-├── lib.sh              # helpers: logging, OS detection, brew/pkg install
-├── installers/         # one self-contained, re-runnable script per tool
+├── install.sh                  # entry point (macOS/Linux)
+├── install.ps1                 # entry point (Windows)
+├── lib.sh                      # helpers (macOS/Linux)
+├── lib.ps1                     # helpers (Windows)
+├── installers/                 # Unix installers
 │   ├── node.sh  tmux.sh
 │   ├── claude-code.sh  codex.sh  opencode.sh
 │   └── grok.sh  cursor.sh  antigravity.sh  kimi.sh
 └── config/
-    └── tmux.conf.template   # rendered to ~/.tmux.conf with your name
+    ├── tmux.conf.template      # rendered to ~/.tmux.conf
+    └── claude-statusline.ps1   # PowerShell status line for Claude Code
 ```
 
-Each `installers/*.sh` is standalone — run one directly to (re)install just
-that tool, e.g. `bash installers/codex.sh`.
+Each Unix installer under `installers/` is standalone, while Windows setup is orchestrated through `install.ps1`.
 
 ## Notes / soft spots
 

@@ -14,7 +14,7 @@ else
   log "kimi: installing"
 fi
 
-curl -L code.kimi.com/install.sh | bash || { warn "kimi: installer failed"; exit 1; }
+curl -fsSL https://code.kimi.com/kimi-code/install.sh | bash || { warn "kimi: installer failed"; exit 1; }
 
 for b in kimi kimi-code; do
   command -v "$b" >/dev/null 2>&1 && { ok "kimi ready: $(command -v "$b")"; exit 0; }

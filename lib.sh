@@ -108,3 +108,7 @@ load_node() {
 # Resolve this repo's root from lib.sh's location.
 TOOLKIT_LITE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export TOOLKIT_LITE_ROOT
+
+# Ensure ~/.local/bin is on PATH for the duration of the installation process
+export PATH="$HOME/.local/bin:$PATH"
+
