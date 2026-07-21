@@ -96,13 +96,13 @@ require_cmd() {
 # (e.g. a Homebrew node).
 # ---------------------------------------------------------------------------
 load_node() {
-  command -v npm >/dev/null 2>&1 && return 0
   export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
   if [ -s "$NVM_DIR/nvm.sh" ]; then
     # shellcheck disable=SC1091
     . "$NVM_DIR/nvm.sh" >/dev/null 2>&1
     nvm use default >/dev/null 2>&1 || nvm use --lts >/dev/null 2>&1 || true
   fi
+  command -v npm >/dev/null 2>&1 && return 0
 }
 
 # Resolve this repo's root from lib.sh's location.

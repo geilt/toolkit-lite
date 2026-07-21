@@ -30,7 +30,7 @@ if [ -n "$ver" ] && [ "$ver" != "N/A" ]; then
 fi
 
 # Determine default node version to offer
-NODE_DEFAULT="24"
+NODE_DEFAULT="25"
 if [ -n "${current_default:-}" ]; then
   NODE_DEFAULT="$current_default"
 fi
