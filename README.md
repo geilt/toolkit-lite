@@ -47,6 +47,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 | Grok | xAI CLI | `agent` |
 | Cursor | Cursor agent CLI (aliased `cursor`) | `cursor-agent` |
 | Antigravity | Google CLI (replaces gemini-cli) | `antigravity` |
+| OMP | Oh My Pi (omp) CLI | `omp` |
 | Kimi | Moonshot Kimi Code CLI | `kimi` |
 | Agent settings | disable Co-Authored-By git trailers (Claude + Codex) | — |
 

@@ -49,7 +49,7 @@ done
 
 # Components in dependency order. ssh key first; node before codex/opencode
 # (they need npm); then dev CLIs; then the agentic CLIs.
-COMPONENTS=(ssh-git-key node shell-prompt tmux cli-tools python gh acli docker ai-local claude-code codex opencode grok cursor antigravity kimi agent-settings)
+COMPONENTS=(ssh-git-key node shell-prompt tmux cli-tools python gh acli docker ai-local claude-code codex opencode grok cursor antigravity omp kimi agent-settings)
 
 want() {
   [ -z "$ONLY" ] && return 0
@@ -124,8 +124,8 @@ install_homebrew_if_missing
 if want jq; then pkg_install jq || warn "jq install skipped"; fi
 
 # ---- agentic CLI selection ----
-AGENT_COMPONENTS=(claude-code codex opencode grok cursor antigravity kimi)
-SELECTED=(1 1 1 1 1 1 1)
+AGENT_COMPONENTS=(claude-code codex opencode grok cursor antigravity omp kimi)
+SELECTED=(1 1 1 1 1 1 1 1)
 
 is_agent_selected() {
   local comp="$1"
@@ -156,7 +156,7 @@ if [ -t 0 ] && [ "$UPDATE_ONLY" -eq 0 ] && [ -z "$ONLY" ]; then
 
     if [ -z "$choice" ]; then
       break
-    elif [[ "$choice" =~ ^[1-7]$ ]]; then
+    elif [[ "$choice" =~ ^[1-8]$ ]]; then
       idx=$((choice - 1))
       if [ "${SELECTED[idx]}" -eq 1 ]; then
         SELECTED[idx]=0

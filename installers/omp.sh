@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# codex — OpenAI Codex CLI. Install/update. Binary: `codex`.
+# omp — Oh My Pi (omp) CLI. Install/update. Binary: `omp`.
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/../lib.sh"
 
-TOOL="codex"
-INSTALL_URL="https://chatgpt.com/codex/install.sh"
+TOOL="omp"
+INSTALL_URL="https://omp.sh/install"
 
 log "$TOOL: installing/updating"
 
@@ -13,11 +13,11 @@ if ! curl -fsSL "$INSTALL_URL" | sh; then
   exit 1
 fi
 
-if command -v codex >/dev/null 2>&1; then
-  ok "$TOOL ready: $(codex --version 2>/dev/null || echo installed)"
+if command -v omp >/dev/null 2>&1; then
+  ok "$TOOL ready: $(omp --version 2>/dev/null || echo installed)"
 else
   # Common candidates if PATH is not updated yet.
-  for candidate in "$HOME/.local/bin/codex" "/usr/local/bin/codex"; do
+  for candidate in "$HOME/.local/bin/omp" "/usr/local/bin/omp"; do
     if [ -x "$candidate" ]; then
       warn "$TOOL: binary at $candidate but not on PATH; ensure ~/.local/bin or equivalent is on PATH"
       break
